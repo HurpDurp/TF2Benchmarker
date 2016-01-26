@@ -51,14 +51,25 @@
             this.lbl_configstatus = new System.Windows.Forms.Label();
             this.btn_loadconfig = new System.Windows.Forms.Button();
             this.tabControl = new System.Windows.Forms.TabControl();
+            this.tp_log = new System.Windows.Forms.TabPage();
+            this.lb_log = new System.Windows.Forms.ListBox();
             this.tp_benchmarkcvars = new System.Windows.Forms.TabPage();
             this.lv_benchmarkcvars = new System.Windows.Forms.ListView();
             this.tp_fpsconfig = new System.Windows.Forms.TabPage();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.txt_benchmarkval = new System.Windows.Forms.TextBox();
+            this.lbl_benchconfig = new System.Windows.Forms.Label();
+            this.btn_benchadditem = new System.Windows.Forms.Button();
+            this.btn_loadbenchconfig = new System.Windows.Forms.Button();
+            this.label1 = new System.Windows.Forms.Label();
+            this.txt_benchcommand = new System.Windows.Forms.TextBox();
             this.gb_gameoptions.SuspendLayout();
             this.gb_config.SuspendLayout();
             this.tabControl.SuspendLayout();
+            this.tp_log.SuspendLayout();
             this.tp_benchmarkcvars.SuspendLayout();
             this.tp_fpsconfig.SuspendLayout();
+            this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // textBox1
@@ -195,7 +206,7 @@
             // 
             this.lv_commands.Location = new System.Drawing.Point(-1, -1);
             this.lv_commands.Name = "lv_commands";
-            this.lv_commands.Size = new System.Drawing.Size(431, 465);
+            this.lv_commands.Size = new System.Drawing.Size(431, 376);
             this.lv_commands.TabIndex = 5;
             this.lv_commands.UseCompatibleStateImageBehavior = false;
             // 
@@ -214,7 +225,7 @@
             this.gb_config.Size = new System.Drawing.Size(431, 115);
             this.gb_config.TabIndex = 4;
             this.gb_config.TabStop = false;
-            this.gb_config.Text = "Config";
+            this.gb_config.Text = "Base FPS Config";
             // 
             // txt_configaddvalue
             // 
@@ -258,10 +269,10 @@
             this.rb_customconfig.AutoSize = true;
             this.rb_customconfig.Location = new System.Drawing.Point(9, 42);
             this.rb_customconfig.Name = "rb_customconfig";
-            this.rb_customconfig.Size = new System.Drawing.Size(115, 17);
+            this.rb_customconfig.Size = new System.Drawing.Size(93, 17);
             this.rb_customconfig.TabIndex = 9;
             this.rb_customconfig.TabStop = true;
-            this.rb_customconfig.Text = "Use Custom Config";
+            this.rb_customconfig.Text = "Custom Config";
             this.rb_customconfig.UseVisualStyleBackColor = true;
             this.rb_customconfig.CheckedChanged += new System.EventHandler(this.rb_customconfig_CheckedChanged);
             // 
@@ -270,17 +281,17 @@
             this.rb_defaultconfig.AutoSize = true;
             this.rb_defaultconfig.Location = new System.Drawing.Point(9, 19);
             this.rb_defaultconfig.Name = "rb_defaultconfig";
-            this.rb_defaultconfig.Size = new System.Drawing.Size(114, 17);
+            this.rb_defaultconfig.Size = new System.Drawing.Size(59, 17);
             this.rb_defaultconfig.TabIndex = 8;
             this.rb_defaultconfig.TabStop = true;
-            this.rb_defaultconfig.Text = "Use Default Config";
+            this.rb_defaultconfig.Text = "Default";
             this.rb_defaultconfig.UseVisualStyleBackColor = true;
             this.rb_defaultconfig.CheckedChanged += new System.EventHandler(this.rb_defaultconfig_CheckedChanged);
             // 
             // lbl_configstatus
             // 
             this.lbl_configstatus.AutoSize = true;
-            this.lbl_configstatus.Location = new System.Drawing.Point(215, 44);
+            this.lbl_configstatus.Location = new System.Drawing.Point(193, 44);
             this.lbl_configstatus.MaximumSize = new System.Drawing.Size(330, 0);
             this.lbl_configstatus.Name = "lbl_configstatus";
             this.lbl_configstatus.Size = new System.Drawing.Size(59, 13);
@@ -289,7 +300,7 @@
             // 
             // btn_loadconfig
             // 
-            this.btn_loadconfig.Location = new System.Drawing.Point(130, 39);
+            this.btn_loadconfig.Location = new System.Drawing.Point(108, 39);
             this.btn_loadconfig.Name = "btn_loadconfig";
             this.btn_loadconfig.Size = new System.Drawing.Size(79, 23);
             this.btn_loadconfig.TabIndex = 10;
@@ -299,13 +310,33 @@
             // 
             // tabControl
             // 
+            this.tabControl.Controls.Add(this.tp_log);
             this.tabControl.Controls.Add(this.tp_benchmarkcvars);
             this.tabControl.Controls.Add(this.tp_fpsconfig);
             this.tabControl.Location = new System.Drawing.Point(449, 12);
             this.tabControl.Name = "tabControl";
             this.tabControl.SelectedIndex = 0;
-            this.tabControl.Size = new System.Drawing.Size(437, 486);
-            this.tabControl.TabIndex = 15;
+            this.tabControl.Size = new System.Drawing.Size(437, 397);
+            this.tabControl.TabIndex = 18;
+            // 
+            // tp_log
+            // 
+            this.tp_log.Controls.Add(this.lb_log);
+            this.tp_log.Location = new System.Drawing.Point(4, 22);
+            this.tp_log.Name = "tp_log";
+            this.tp_log.Size = new System.Drawing.Size(429, 371);
+            this.tp_log.TabIndex = 2;
+            this.tp_log.Text = "Log";
+            this.tp_log.UseVisualStyleBackColor = true;
+            // 
+            // lb_log
+            // 
+            this.lb_log.FormattingEnabled = true;
+            this.lb_log.Location = new System.Drawing.Point(0, 2);
+            this.lb_log.Margin = new System.Windows.Forms.Padding(3, 3, 3, 1);
+            this.lb_log.Name = "lb_log";
+            this.lb_log.Size = new System.Drawing.Size(427, 368);
+            this.lb_log.TabIndex = 0;
             // 
             // tp_benchmarkcvars
             // 
@@ -313,16 +344,16 @@
             this.tp_benchmarkcvars.Location = new System.Drawing.Point(4, 22);
             this.tp_benchmarkcvars.Name = "tp_benchmarkcvars";
             this.tp_benchmarkcvars.Padding = new System.Windows.Forms.Padding(3);
-            this.tp_benchmarkcvars.Size = new System.Drawing.Size(429, 460);
+            this.tp_benchmarkcvars.Size = new System.Drawing.Size(429, 371);
             this.tp_benchmarkcvars.TabIndex = 1;
             this.tp_benchmarkcvars.Text = "Benchmark Convars";
             this.tp_benchmarkcvars.UseVisualStyleBackColor = true;
             // 
             // lv_benchmarkcvars
             // 
-            this.lv_benchmarkcvars.Location = new System.Drawing.Point(-2, -1);
+            this.lv_benchmarkcvars.Location = new System.Drawing.Point(-1, -1);
             this.lv_benchmarkcvars.Name = "lv_benchmarkcvars";
-            this.lv_benchmarkcvars.Size = new System.Drawing.Size(435, 465);
+            this.lv_benchmarkcvars.Size = new System.Drawing.Size(431, 376);
             this.lv_benchmarkcvars.TabIndex = 8;
             this.lv_benchmarkcvars.UseCompatibleStateImageBehavior = false;
             // 
@@ -332,20 +363,95 @@
             this.tp_fpsconfig.Location = new System.Drawing.Point(4, 22);
             this.tp_fpsconfig.Name = "tp_fpsconfig";
             this.tp_fpsconfig.Padding = new System.Windows.Forms.Padding(3);
-            this.tp_fpsconfig.Size = new System.Drawing.Size(429, 460);
+            this.tp_fpsconfig.Size = new System.Drawing.Size(429, 371);
             this.tp_fpsconfig.TabIndex = 0;
             this.tp_fpsconfig.Text = "FPS Config";
             this.tp_fpsconfig.UseVisualStyleBackColor = true;
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.txt_benchmarkval);
+            this.groupBox1.Controls.Add(this.lbl_benchconfig);
+            this.groupBox1.Controls.Add(this.btn_benchadditem);
+            this.groupBox1.Controls.Add(this.btn_loadbenchconfig);
+            this.groupBox1.Controls.Add(this.label1);
+            this.groupBox1.Controls.Add(this.txt_benchcommand);
+            this.groupBox1.Location = new System.Drawing.Point(12, 315);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(431, 94);
+            this.groupBox1.TabIndex = 16;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Benchmark Commands";
+            // 
+            // txt_benchmarkval
+            // 
+            this.txt_benchmarkval.Location = new System.Drawing.Point(278, 66);
+            this.txt_benchmarkval.Name = "txt_benchmarkval";
+            this.txt_benchmarkval.Size = new System.Drawing.Size(65, 20);
+            this.txt_benchmarkval.TabIndex = 16;
+            this.txt_benchmarkval.Text = "Value";
+            this.txt_benchmarkval.KeyDown += new System.Windows.Forms.KeyEventHandler(this.tb_benchmarkval_KeyDown);
+            // 
+            // lbl_benchconfig
+            // 
+            this.lbl_benchconfig.AutoSize = true;
+            this.lbl_benchconfig.Location = new System.Drawing.Point(94, 24);
+            this.lbl_benchconfig.MaximumSize = new System.Drawing.Size(330, 0);
+            this.lbl_benchconfig.Name = "lbl_benchconfig";
+            this.lbl_benchconfig.Size = new System.Drawing.Size(59, 13);
+            this.lbl_benchconfig.TabIndex = 19;
+            this.lbl_benchconfig.Text = "Not loaded";
+            // 
+            // btn_benchadditem
+            // 
+            this.btn_benchadditem.Location = new System.Drawing.Point(349, 64);
+            this.btn_benchadditem.Name = "btn_benchadditem";
+            this.btn_benchadditem.Size = new System.Drawing.Size(75, 23);
+            this.btn_benchadditem.TabIndex = 17;
+            this.btn_benchadditem.Text = "Add";
+            this.btn_benchadditem.UseVisualStyleBackColor = true;
+            this.btn_benchadditem.Click += new System.EventHandler(this.btn_benchadditem_Click);
+            // 
+            // btn_loadbenchconfig
+            // 
+            this.btn_loadbenchconfig.Location = new System.Drawing.Point(9, 19);
+            this.btn_loadbenchconfig.Name = "btn_loadbenchconfig";
+            this.btn_loadbenchconfig.Size = new System.Drawing.Size(79, 23);
+            this.btn_loadbenchconfig.TabIndex = 14;
+            this.btn_loadbenchconfig.Text = "Load Commands";
+            this.btn_loadbenchconfig.UseVisualStyleBackColor = true;
+            this.btn_loadbenchconfig.Click += new System.EventHandler(this.btn_loadbenchconfig_Click);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(6, 50);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(76, 13);
+            this.label1.TabIndex = 21;
+            this.label1.Text = "Add Command";
+            // 
+            // txt_benchcommand
+            // 
+            this.txt_benchcommand.Location = new System.Drawing.Point(9, 66);
+            this.txt_benchcommand.Name = "txt_benchcommand";
+            this.txt_benchcommand.Size = new System.Drawing.Size(263, 20);
+            this.txt_benchcommand.TabIndex = 15;
+            this.txt_benchcommand.Text = "Name";
+            this.txt_benchcommand.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txt_benchcommand_KeyDown);
             // 
             // Benchmarker
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(898, 510);
+            this.ClientSize = new System.Drawing.Size(898, 419);
+            this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.tabControl);
             this.Controls.Add(this.gb_config);
             this.Controls.Add(this.gb_gameoptions);
             this.Controls.Add(this.btn_start);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.MaximizeBox = false;
             this.Name = "Benchmarker";
             this.Text = "TF2 Benchmarker";
             this.gb_gameoptions.ResumeLayout(false);
@@ -353,8 +459,11 @@
             this.gb_config.ResumeLayout(false);
             this.gb_config.PerformLayout();
             this.tabControl.ResumeLayout(false);
+            this.tp_log.ResumeLayout(false);
             this.tp_benchmarkcvars.ResumeLayout(false);
             this.tp_fpsconfig.ResumeLayout(false);
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -386,6 +495,15 @@
         private System.Windows.Forms.Button btn_configadditem;
         private System.Windows.Forms.Label lbl_configadditem;
         private System.Windows.Forms.TextBox txt_configaddname;
+        private System.Windows.Forms.TabPage tp_log;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.Label lbl_benchconfig;
+        private System.Windows.Forms.Button btn_benchadditem;
+        private System.Windows.Forms.Button btn_loadbenchconfig;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.TextBox txt_benchcommand;
+        private System.Windows.Forms.ListBox lb_log;
+        private System.Windows.Forms.TextBox txt_benchmarkval;
     }
 }
 
