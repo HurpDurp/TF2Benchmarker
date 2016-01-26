@@ -32,14 +32,15 @@ namespace TF2_Benchmarker
             // Listviews
             lv_commands.View = View.Details;
             lv_benchmarkcvars.View = View.Details;
+            lv_results.View = View.Details;
 
             lv_commands.CheckBoxes = true;
-            lv_commands.Columns.Add("Command", 310);
-            lv_commands.Columns.Add("Value", 130);
+            lv_commands.Columns.Add("Command", 350);
+            lv_commands.Columns.Add("Value", -2);
 
             lv_benchmarkcvars.CheckBoxes = true;
-            lv_benchmarkcvars.Columns.Add("Command", 310);
-            lv_benchmarkcvars.Columns.Add("Values", 130);
+            lv_benchmarkcvars.Columns.Add("Command", 350);
+            lv_benchmarkcvars.Columns.Add("Value", -2);
 
             Log("Initialized");
         }
@@ -55,6 +56,8 @@ namespace TF2_Benchmarker
                 btn_start.Text = "&Stop";
                 Benchmarking = true;
 
+                Log("Starting...");
+
                 // Prep the directory
 
                 FileInfo benchcsv = new FileInfo(path + @"\tf\sourcebench.csv");
@@ -64,10 +67,12 @@ namespace TF2_Benchmarker
                     benchcsv.Delete();
                 }
 
-                path += @"\tf\custom\tfbench\cfg";
-                Directory.CreateDirectory(path);
-                
+                string cfgpath = path + @"\tf\custom\tfbench\cfg";
+                Directory.CreateDirectory(cfgpath);
+
                 // Create a config for this benchmark
+
+                Log("Creating config...");
 
                 List<string> output = new List<string>();
                 List<string> fpsconfig = new List<string>();
@@ -80,8 +85,15 @@ namespace TF2_Benchmarker
 
                 List<string> tempconfig;
 
+                // Main benchmark loop
+
                 foreach (ListViewItem item in lv_benchmarkcvars.Items)
                 {
+                    if (!item.Checked)
+                        continue;
+
+                    Log("Benchmarking " + item.Text + "...");
+
                     tempconfig = new List<string>(fpsconfig);
 
                     for (int i = 0; i < tempconfig.Count; i++)
@@ -91,11 +103,51 @@ namespace TF2_Benchmarker
                             tempconfig[i] = String.Format("{0} \"{1}\"", item.Text, item.SubItems[1].Text);
                         }
                     }
+
+                    // Write autoexec
+
+                    using (StreamWriter file = new StreamWriter(cfgpath + @"\autoexec.cfg", false))
+                    {
+                        foreach (string line in tempconfig)
+                            file.WriteLine(line);
+                    }
+
+                    // run game, wait until it finishes
+
+                    // Parse csv file
+                    //demofile,fps,framerate variability,totaltime,numframes,width,height,windowed,vsync,MSAA,Aniso,dxlevel,cmdline,driver name,vendor id,device id,Reduce fillrate,reflect entities,motion blur,flashlight shadows,mat_reduceparticles,r_dopixelvisibility,nulldevice,timedemo_comment,
+
+                    lv_results.Clear();
+
+                    lv_results.Columns.Add("Demo File");
+                    lv_results.Columns.Add("FPS");
+                    lv_results.Columns.Add("Variability");
+                    lv_results.Columns.Add("Comment");
+
+                    using (TextFieldParser parser = new TextFieldParser(benchcsv.FullName))
+                    {
+                        parser.Delimiters = new string[] { "," };
+                        while (!parser.EndOfData)
+                        {
+                            ListViewItem li = new ListViewItem();
+
+                            string[] row = parser.ReadFields();
+                            for (int i = 0; i < row.Length; i++)
+                            {
+                                if (i == 0)
+                                    li.Text = row[i];
+                                else if (i == 1)
+                                    li.SubItems.Add(row[i]);
+                                else if (i == 2)
+                                    li.SubItems.Add(row[i]);
+                                else if (i == 23)
+                                    li.SubItems.Add(row[i]);
+                            }
+
+                            lv_results.Items.Add(li);
+                        }
+                    }
                 }
-
-                // Write to autoexec
-
-                // run game
             }
             else
             {
