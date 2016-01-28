@@ -1,5 +1,0 @@
-demofile,fps,framerate variability,totaltime,numframes,width,height,windowed,vsync,MSAA,Aniso,dxlevel,cmdline,driver name,vendor id,device id,Reduce fillrate,reflect entities,motion blur,flashlight shadows,mat_reduceparticles,r_dopixelvisibility,nulldevice,timedemo_comment,
-benchmark1.dem,147.5, 12.0, 17.9,2639,1920,1080,fullscreen,off,2,16,gamemode,"D:\SteamLibrary\steamapps\common\Team Fortress 2\hl2.exe" -steam -game tf -novid,NVIDIA GeForce GTX 770,0x10de,0x1184,on,off,off,off,on,off,no,,
-fpsbench.dem,111.9,  5.2, 34.5,3861,1920,1080,fullscreen,off,2,16,gamemode,"D:\SteamLibrary\steamapps\common\Team Fortress 2\hl2.exe" -steam -game tf -novid,NVIDIA GeForce GTX 770,0x10de,0x1184,on,off,off,off,on,off,no,,
-fpsdemo2.dem,136.8,  9.1, 28.8,3934,1920,1080,fullscreen,off,2,16,gamemode,"D:\SteamLibrary\steamapps\common\Team Fortress 2\hl2.exe" -steam -game tf -novid,NVIDIA GeForce GTX 770,0x10de,0x1184,on,off,off,off,on,off,no,,
-fpsbench.dem,112.0,  4.6, 34.5,3861,1920,1080,fullscreen,off,2,16,gamemode,"D:\SteamLibrary\steamapps\common\Team Fortress 2\hl2.exe" -steam -game tf -novid,NVIDIA GeForce GTX 770,0x10de,0x1184,on,off,off,off,on,off,no,,

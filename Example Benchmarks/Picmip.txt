@@ -1,0 +1,4 @@
+mat_picmip -1 // very high
+mat_picmip 0 // high
+mat_picmip 1 // medium
+mat_picmip 2 // low

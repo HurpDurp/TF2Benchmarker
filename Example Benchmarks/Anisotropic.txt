@@ -1,0 +1,8 @@
+// TODO: Verify that these are the correct values.
+
+16x Anisotropic | mat_forceaniso 16 | mat_trilinear 0
+8x Anisotropic | mat_forceaniso 8 | mat_trilinear 0
+4x Anisotropic | mat_forceaniso 4 | mat_trilinear 0
+2x Anisotropic | mat_forceaniso 1 | mat_trilinear 1
+Trilinear | mat_forceaniso 0 | mat_trilinear 1
+Bilinear | mat_forceaniso 0 | mat_trilinear 0

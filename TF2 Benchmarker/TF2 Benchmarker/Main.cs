@@ -17,9 +17,8 @@ namespace TF2_Benchmarker
     public partial class Benchmarker : Form
     {
         Dictionary<string, string> Settings;
-        ProcessStartInfo TF2Proc;
         bool Benchmarking = false;
-                
+        
         public Benchmarker()
         {
             InitializeComponent();
@@ -45,7 +44,7 @@ namespace TF2_Benchmarker
 
             lv_results.Columns.Add("Demo File", 150);
             lv_results.Columns.Add("FPS");
-            lv_results.Columns.Add("Variability");
+            lv_results.Columns.Add("Variability", 75);
             lv_results.Columns.Add("Comment", -2);
 
             Log("Started");
@@ -88,7 +87,6 @@ namespace TF2_Benchmarker
                     args = "-steam -game tf " + txt_launchoptions.Text + GetDxLevel() + " -default +timedemoquit " + txt_demoname.Text;
 
                     fpsconfig.Add("host_writeconfig \"config\" full");
-                    fpsconfig.Add("timedemo_runcount 3");
 
                     WriteCfg(fpsconfig, path);
                     StartBenchmark(args, path, "Baseline");
@@ -97,7 +95,7 @@ namespace TF2_Benchmarker
                 }
                 else
                 {
-                    // Use fps config
+                    // Use fps config instead of defaults
                     args = "-steam -game tf " + txt_launchoptions.Text + GetDxLevel() + " +timedemoquit " + txt_demoname.Text;
 
                     foreach (ListViewItem item in lv_commands.Items)
@@ -205,8 +203,6 @@ namespace TF2_Benchmarker
             {
                 var FPSConfig = new List<string>();
 
-                lbl_configstatus.Text = "Loaded";
-
                 // Read FPS config
                 string noComments;
 
@@ -226,14 +222,22 @@ namespace TF2_Benchmarker
                 // Populate command listview
                 foreach (string s in FPSConfig)
                 {
-                    string cvar = s.Substring(0, s.IndexOf(" ")).Trim();
-                    string val = s.Substring(s.IndexOf(" ") + 1).Trim();
+                    try
+                    {
+                        string cvar = s.Substring(0, s.IndexOf(" ")).Trim();
+                        string val = s.Substring(s.IndexOf(" ") + 1).Trim();
 
-                    lv_commands.Items.Add(cvar).SubItems.Add(val);
+                        var lv = new ListViewItem(cvar);
+                        lv.SubItems.Add(val);
+                        lv.Checked = true;
+
+                        lv_commands.Items.Add(lv);
+                    }
+                    catch
+                    {
+                        Log("Could not load command: " + s);
+                    }
                 }
-
-                foreach (ListViewItem item in lv_commands.Items)
-                    item.Checked = true;
 
                 Log("FPS config loaded");
             }
@@ -266,8 +270,6 @@ namespace TF2_Benchmarker
             {
                 var BenchConfig = new List<string>();
 
-                lbl_benchconfig.Text = "Loaded";
-
                 // Read Bench config
                 string noComments;
 
@@ -286,18 +288,31 @@ namespace TF2_Benchmarker
                 // Parse the benchmark input
                 foreach (string s in BenchConfig)
                 {
-                    if (!s.Contains("&"))
+                    if (!s.Contains("|"))
                     {
-                        string cvar = s.Substring(0, s.IndexOf(" ")).Trim();
-                        string val = s.Substring(s.IndexOf(" ") + 1).Trim();
+                        string temp = s.Trim();
+                        
+                        try
+                        {
+                            string cvar = s.Substring(0, s.IndexOf(" ")).Trim();
+                            string val = s.Substring(s.IndexOf(" ") + 1).Trim();
 
-                        lv_benchmarkcvars.Items.Add(cvar).SubItems.Add(val);
+                            var lv = new ListViewItem(cvar);
+                            lv.SubItems.Add(val);
+                            lv.Checked = true;
+
+                            lv_benchmarkcvars.Items.Add(lv);
+                        }
+                        catch
+                        {
+                            Log("Could not parse command: " + s);
+                        }
                     }
                     else
                     {
                         List<Cvar> MultiLineCmd = new List<Cvar>();
 
-                        string[] cmds = s.Split('&');
+                        string[] cmds = s.Split('|');
                         string name = "";
 
                         for(int i = 0; i < cmds.Length; i++)
@@ -306,30 +321,38 @@ namespace TF2_Benchmarker
 
                             if (i == 0)
                             {
+                                // First part of the multiline contains the name
                                 name = cmds[i].Trim();
                                 continue;
                             }
 
-                            Cvar c;
-                            c.Command = cmds[i].Substring(0, cmds[i].IndexOf(" "));
-                            c.Value = cmds[i].Substring(cmds[i].IndexOf(" ") + 1);
+                            try
+                            {
+                                Cvar c;
+                                c.Command = cmds[i].Substring(0, cmds[i].IndexOf(" "));
+                                c.Value = cmds[i].Substring(cmds[i].IndexOf(" ") + 1);
 
-                            MultiLineCmd.Add(c);
+                                MultiLineCmd.Add(c);
+                            }
+                            catch
+                            {
+                                Log("Could not parse custom command: " + name);
+                            }
                         }
 
-                        ListViewItem lv = new ListViewItem();
-                        lv.Text = "Custom: " + name;
-                        lv.Tag = MultiLineCmd;
-                        lv.Checked = true;
+                        if (MultiLineCmd.Count > 0)
+                        {
+                            ListViewItem lv = new ListViewItem();
+                            lv.Text = "Custom: " + name;
+                            lv.Tag = MultiLineCmd;
+                            lv.Checked = true;
 
-                        lv_benchmarkcvars.Items.Add(lv);
+                            lv_benchmarkcvars.Items.Add(lv);
+                        }
                     }
                 }
 
-                foreach (ListViewItem item in lv_benchmarkcvars.Items)
-                    item.Checked = true;
-
-                Log("Benchmark config loaded");
+                Log("Benchmark config added");
             }
         }
 
@@ -351,11 +374,14 @@ namespace TF2_Benchmarker
             }
         }
 
-        private void btn_clearstats_Click(object sender, EventArgs e)
+        private void btn_clearbench_Click(object sender, EventArgs e)
         {
-            lb_log.Items.Clear();
             lv_benchmarkcvars.Items.Clear();
-            lv_results.Items.Clear();
+        }
+
+        private void btn_clearfps_Click(object sender, EventArgs e)
+        {
+            lv_commands.Items.Clear();
         }
 
         #endregion
@@ -365,12 +391,11 @@ namespace TF2_Benchmarker
         private void rb_defaultconfig_CheckedChanged(object sender, EventArgs e)
         {
             btn_loadconfig.Enabled = false;
-            lbl_configstatus.Text = "Disabled";
-            lbl_configstatus.Enabled = false;
             lbl_configadditem.Enabled = false;
             txt_configaddname.Enabled = false;
             txt_configaddvalue.Enabled = false;
             btn_configadditem.Enabled = false;
+            btn_clearfps.Enabled = false;
             
             lv_commands.Items.Clear();
         }
@@ -378,12 +403,11 @@ namespace TF2_Benchmarker
         private void rb_customconfig_CheckedChanged(object sender, EventArgs e)
         {
             btn_loadconfig.Enabled = true;
-            lbl_configstatus.Text = "Not Loaded";
-            lbl_configstatus.Enabled = true;
             lbl_configadditem.Enabled = true;
             txt_configaddname.Enabled = true;
             txt_configaddvalue.Enabled = true;
             btn_configadditem.Enabled = true;
+            btn_clearfps.Enabled = true;
         }
 
         #endregion
@@ -477,7 +501,8 @@ namespace TF2_Benchmarker
         public void StartGame(string args, string path)
         {
             // run game, wait until it finishes
-            TF2Proc = new ProcessStartInfo();
+
+            ProcessStartInfo TF2Proc = new ProcessStartInfo();
             TF2Proc.CreateNoWindow = true;
             TF2Proc.Arguments = args;
             TF2Proc.FileName = path + @"\hl2.exe";

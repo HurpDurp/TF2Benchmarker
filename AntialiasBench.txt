@@ -1,7 +1,0 @@
-No AA & mat_antialias 0 & mat_aaquality 0
-2x MSAA & mat_antialias 2 & mat_aaquality 0
-4x MSAA & mat_antialias 4 & mat_aaquality 0
-8x CSAA & mat_antialias 4 & mat_aaquality 2
-16x CSAA & mat_antialias 4 & mat_aaquality 4
-8x MSAA & mat_antialias 8 & mat_aaquality 0
-16xQ CSAA & mat_antialias 8 & mat_aaquality 2
