@@ -630,7 +630,7 @@ namespace TF2_Benchmarker
 
             if (Settings.TryGetValue("TFPath", out path))
             {
-                path += @"tf\custom\tfbench";
+                path += @"\tf\custom\tfbench";
 
                 if (Directory.Exists(path))
                 {
