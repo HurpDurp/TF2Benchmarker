@@ -43,6 +43,7 @@
             this.lbl_launchoptions = new System.Windows.Forms.Label();
             this.lv_commands = new System.Windows.Forms.ListView();
             this.gb_config = new System.Windows.Forms.GroupBox();
+            this.btn_clearfps = new System.Windows.Forms.Button();
             this.txt_configaddvalue = new System.Windows.Forms.TextBox();
             this.btn_configadditem = new System.Windows.Forms.Button();
             this.lbl_configadditem = new System.Windows.Forms.Label();
@@ -67,7 +68,6 @@
             this.btn_loadbenchconfig = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.txt_benchcommand = new System.Windows.Forms.TextBox();
-            this.btn_clearfps = new System.Windows.Forms.Button();
             this.gb_gameoptions.SuspendLayout();
             this.gb_config.SuspendLayout();
             this.tabControl.SuspendLayout();
@@ -261,6 +261,17 @@
             this.gb_config.TabIndex = 4;
             this.gb_config.TabStop = false;
             this.gb_config.Text = "Base FPS Config";
+            // 
+            // btn_clearfps
+            // 
+            this.btn_clearfps.Location = new System.Drawing.Point(257, 48);
+            this.btn_clearfps.Margin = new System.Windows.Forms.Padding(4);
+            this.btn_clearfps.Name = "btn_clearfps";
+            this.btn_clearfps.Size = new System.Drawing.Size(100, 28);
+            this.btn_clearfps.TabIndex = 24;
+            this.btn_clearfps.Text = "Clear";
+            this.btn_clearfps.UseVisualStyleBackColor = true;
+            this.btn_clearfps.Click += new System.EventHandler(this.btn_clearfps_Click);
             // 
             // txt_configaddvalue
             // 
@@ -528,17 +539,6 @@
             this.txt_benchcommand.Text = "Name";
             this.txt_benchcommand.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txt_benchcommand_KeyDown);
             // 
-            // btn_clearfps
-            // 
-            this.btn_clearfps.Location = new System.Drawing.Point(257, 48);
-            this.btn_clearfps.Margin = new System.Windows.Forms.Padding(4);
-            this.btn_clearfps.Name = "btn_clearfps";
-            this.btn_clearfps.Size = new System.Drawing.Size(100, 28);
-            this.btn_clearfps.TabIndex = 24;
-            this.btn_clearfps.Text = "Clear";
-            this.btn_clearfps.UseVisualStyleBackColor = true;
-            this.btn_clearfps.Click += new System.EventHandler(this.btn_clearfps_Click);
-            // 
             // Benchmarker
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -554,6 +554,7 @@
             this.MaximizeBox = false;
             this.Name = "Benchmarker";
             this.Text = "TF2 Benchmarker";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Benchmarker_FormClosing);
             this.gb_gameoptions.ResumeLayout(false);
             this.gb_gameoptions.PerformLayout();
             this.gb_config.ResumeLayout(false);

@@ -49,7 +49,7 @@ namespace TF2_Benchmarker
 
             Log("Started");
         }
-
+        
         #region Buttons
 
         private void btn_start_Click(object sender, EventArgs e)
@@ -623,5 +623,20 @@ namespace TF2_Benchmarker
         }
 
         #endregion
+
+        private void Benchmarker_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            string path;
+
+            if (Settings.TryGetValue("TFPath", out path))
+            {
+                path += @"tf\custom\tfbench";
+
+                if (Directory.Exists(path))
+                {
+                    Directory.Delete(path, true);
+                }
+            }
+        }
     }
 }
