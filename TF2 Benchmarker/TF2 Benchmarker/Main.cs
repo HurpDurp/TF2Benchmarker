@@ -1,22 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
+using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.VisualBasic.FileIO;
 
 namespace TF2_Benchmarker
 {
+    public struct Cvar
+    {
+        public string Command;
+        public string Value;
+    }
+
     public partial class Benchmarker : Form
     {
         Dictionary<string, string> Settings;
-
+        ProcessStartInfo TF2Proc;
         bool Benchmarking = false;
                 
         public Benchmarker()
@@ -26,7 +27,7 @@ namespace TF2_Benchmarker
             Settings = new Dictionary<string, string>();
 
             // Radio buttons
-            rb_dx98.Checked = true;
+            rb_dxnone.Checked = true;
             rb_defaultconfig.Checked = true;
 
             // Listviews
@@ -42,7 +43,12 @@ namespace TF2_Benchmarker
             lv_benchmarkcvars.Columns.Add("Command", 350);
             lv_benchmarkcvars.Columns.Add("Value", -2);
 
-            Log("Initialized");
+            lv_results.Columns.Add("Demo File", 150);
+            lv_results.Columns.Add("FPS");
+            lv_results.Columns.Add("Variability");
+            lv_results.Columns.Add("Comment", -2);
+
+            Log("Started");
         }
 
         #region Buttons
@@ -58,100 +64,109 @@ namespace TF2_Benchmarker
 
                 Log("Starting...");
 
-                // Prep the directory
+                PrepDirectory(path);
+                
+                // Generate a baseline benchmark
 
-                FileInfo benchcsv = new FileInfo(path + @"\tf\sourcebench.csv");
-                if (benchcsv.Exists)
-                {
-                    benchcsv.CopyTo("sourcebench.csv.bak");
-                    benchcsv.Delete();
-                }
+                Log("Generating baseline benchmark...");
 
-                string cfgpath = path + @"\tf\custom\tfbench\cfg";
-                Directory.CreateDirectory(cfgpath);
-
-                // Create a config for this benchmark
-
-                Log("Creating config...");
-
-                List<string> output = new List<string>();
                 List<string> fpsconfig = new List<string>();
+                string args;
 
-                foreach (ListViewItem item in lv_commands.Items)
+                // Back up old config.cfg
+                FileInfo config = new FileInfo(path + @"\tf\cfg\config.cfg");
+                if (config.Exists)
                 {
-                    if (item.Checked)
-                        fpsconfig.Add(String.Format("{0} \"{1}\"", item.Text, item.SubItems[1].Text));
+                    config.CopyTo(path + @"\tf\cfg\config.cfg.bak", true);
+                    config.Delete();
                 }
 
-                List<string> tempconfig;
+                // Generate a fresh config.cfg with the first run of the benchmark, and set directX level if we need to
+                if (rb_defaultconfig.Checked)
+                {
+                    // Use default config
+                    args = "-steam -game tf " + txt_launchoptions.Text + GetDxLevel() + " -default +timedemoquit " + txt_demoname.Text;
+
+                    fpsconfig.Add("host_writeconfig \"config\" full");
+                    fpsconfig.Add("timedemo_runcount 3");
+
+                    WriteCfg(fpsconfig, path);
+                    StartBenchmark(args, path, "Baseline");
+
+                    fpsconfig.Clear();
+                }
+                else
+                {
+                    // Use fps config
+                    args = "-steam -game tf " + txt_launchoptions.Text + GetDxLevel() + " +timedemoquit " + txt_demoname.Text;
+
+                    foreach (ListViewItem item in lv_commands.Items)
+                        if (item.Checked)
+                            fpsconfig.Add(String.Format("{0} \"{1}\"", item.Text, item.SubItems[1].Text));
+
+                    WriteCfg(fpsconfig, path);
+                    StartBenchmark(args, path, "Baseline");
+                }
+
+                // Set it to read only, so we don't overwrite it while benchmarking
+                config.Refresh();
+                if (config.Exists)
+                    config.IsReadOnly = true;
+
+                Log("Done.");
 
                 // Main benchmark loop
 
+                List<string> ConfigToWrite;
+                args = "-steam -game tf " + txt_launchoptions.Text + " +timedemoquit " + txt_demoname.Text;
+
                 foreach (ListViewItem item in lv_benchmarkcvars.Items)
                 {
-                    if (!item.Checked)
+                    if (!item.Checked || !Benchmarking)
                         continue;
 
-                    Log("Benchmarking " + item.Text + "...");
+                    string name;
+                    if (item.Tag == null)
+                        name = item.Text + " " + item.SubItems[1].Text;
+                    else
+                        name = item.Text;
 
-                    tempconfig = new List<string>(fpsconfig);
+                    Log("Benchmarking " + name + "...");
 
-                    for (int i = 0; i < tempconfig.Count; i++)
-                    {
-                        if (tempconfig[i].Contains(item.Text))
-                        {
-                            tempconfig[i] = String.Format("{0} \"{1}\"", item.Text, item.SubItems[1].Text);
-                        }
-                    }
+                    ConfigToWrite = MergeConfig(fpsconfig, item);
 
-                    // Write autoexec
-
-                    using (StreamWriter file = new StreamWriter(cfgpath + @"\autoexec.cfg", false))
-                    {
-                        foreach (string line in tempconfig)
-                            file.WriteLine(line);
-                    }
-
-                    // run game, wait until it finishes
-
-                    // Parse csv file
-                    //demofile,fps,framerate variability,totaltime,numframes,width,height,windowed,vsync,MSAA,Aniso,dxlevel,cmdline,driver name,vendor id,device id,Reduce fillrate,reflect entities,motion blur,flashlight shadows,mat_reduceparticles,r_dopixelvisibility,nulldevice,timedemo_comment,
-
-                    lv_results.Clear();
-
-                    lv_results.Columns.Add("Demo File");
-                    lv_results.Columns.Add("FPS");
-                    lv_results.Columns.Add("Variability");
-                    lv_results.Columns.Add("Comment");
-
-                    using (TextFieldParser parser = new TextFieldParser(benchcsv.FullName))
-                    {
-                        parser.Delimiters = new string[] { "," };
-                        while (!parser.EndOfData)
-                        {
-                            ListViewItem li = new ListViewItem();
-
-                            string[] row = parser.ReadFields();
-                            for (int i = 0; i < row.Length; i++)
-                            {
-                                if (i == 0)
-                                    li.Text = row[i];
-                                else if (i == 1)
-                                    li.SubItems.Add(row[i]);
-                                else if (i == 2)
-                                    li.SubItems.Add(row[i]);
-                                else if (i == 23)
-                                    li.SubItems.Add(row[i]);
-                            }
-
-                            lv_results.Items.Add(li);
-                        }
-                    }
+                    PrepDirectory(path);
+                    WriteCfg(ConfigToWrite, path);
+                    
+                    StartBenchmark(args, path, name);
+                    
+                    Log("Done.");
                 }
+
+                // Clean up, delete our generated config
+                config.Refresh();
+                if (config.Exists)
+                {
+                    config.IsReadOnly = false;
+                    config.Delete();
+                }
+
+                // Replace it with the original
+                config = new FileInfo(path + @"\tf\cfg\config.cfg.bak");
+                if (config.Exists)
+                {
+                    config.CopyTo(path + @"\tf\cfg\config.cfg");
+                    config.Delete();
+                }
+
+                Log("Benchmark Complete.");
+
+                btn_start.Text = "&Start";
+                Benchmarking = false;
             }
             else
             {
-                // Do something to stop the tf2 process
+                Log("Stopping benchmark");
 
                 btn_start.Text = "&Start";
                 Benchmarking = false;
@@ -197,7 +212,7 @@ namespace TF2_Benchmarker
 
                 using (StreamReader sr = new StreamReader(ConfigDialog.FileName))
                 {
-                    do
+                    while (sr.Peek() != -1)
                     {
                         noComments = StripComments(sr.ReadLine());
                         noComments = noComments.Replace("\"", "");
@@ -205,7 +220,7 @@ namespace TF2_Benchmarker
                         if (noComments.Trim().Length > 0)
                             FPSConfig.Add(noComments);
 
-                    } while (sr.Peek() != -1);
+                    }
                 }
 
                 // Populate command listview
@@ -229,12 +244,14 @@ namespace TF2_Benchmarker
             if (txt_configaddname.Text != "Command" && txt_configaddvalue.Text != "Value"
                 && txt_configaddname.Text.Length > 0 && txt_configaddvalue.Text.Length > 0)
             {
-                lv_commands.Items.Add(txt_configaddname.Text).SubItems.Add(txt_configaddvalue.Text);
-
+                ListViewItem item = new ListViewItem(txt_configaddname.Text);
+                item.SubItems.Add(txt_configaddvalue.Text);
+                item.Checked = true;
+                
                 txt_configaddname.Clear();
                 txt_configaddvalue.Clear();
 
-                Log("Command added");
+                Log("Command \"" + item.Text + " " + item.SubItems[1].Text + "\" added");
             }
         }
 
@@ -243,37 +260,70 @@ namespace TF2_Benchmarker
             var ConfigDialog = new OpenFileDialog();
 
             ConfigDialog.Title = "Open Benchmark Config";
-            ConfigDialog.Filter = "cfg files (*.cfg)|*.cfg|All files (*.*)|*.*";
+            ConfigDialog.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
 
             if (ConfigDialog.ShowDialog() == DialogResult.OK)
             {
-                var FPSConfig = new List<string>();
+                var BenchConfig = new List<string>();
 
                 lbl_benchconfig.Text = "Loaded";
 
-                // Read FPS config
+                // Read Bench config
                 string noComments;
 
                 using (StreamReader sr = new StreamReader(ConfigDialog.FileName))
                 {
-                    do
+                    while (sr.Peek() != -1)
                     {
                         noComments = StripComments(sr.ReadLine());
                         noComments = noComments.Replace("\"", "");
 
                         if (noComments.Trim().Length > 0)
-                            FPSConfig.Add(noComments);
-
-                    } while (sr.Peek() != -1);
+                            BenchConfig.Add(noComments);
+                    }
                 }
 
-                // Populate command listview
-                foreach (string s in FPSConfig)
+                // Parse the benchmark input
+                foreach (string s in BenchConfig)
                 {
-                    string cvar = s.Substring(0, s.IndexOf(" ")).Trim();
-                    string val = s.Substring(s.IndexOf(" ") + 1).Trim();
+                    if (!s.Contains("&"))
+                    {
+                        string cvar = s.Substring(0, s.IndexOf(" ")).Trim();
+                        string val = s.Substring(s.IndexOf(" ") + 1).Trim();
 
-                    lv_benchmarkcvars.Items.Add(cvar).SubItems.Add(val);
+                        lv_benchmarkcvars.Items.Add(cvar).SubItems.Add(val);
+                    }
+                    else
+                    {
+                        List<Cvar> MultiLineCmd = new List<Cvar>();
+
+                        string[] cmds = s.Split('&');
+                        string name = "";
+
+                        for(int i = 0; i < cmds.Length; i++)
+                        {
+                            cmds[i] = cmds[i].Trim();
+
+                            if (i == 0)
+                            {
+                                name = cmds[i].Trim();
+                                continue;
+                            }
+
+                            Cvar c;
+                            c.Command = cmds[i].Substring(0, cmds[i].IndexOf(" "));
+                            c.Value = cmds[i].Substring(cmds[i].IndexOf(" ") + 1);
+
+                            MultiLineCmd.Add(c);
+                        }
+
+                        ListViewItem lv = new ListViewItem();
+                        lv.Text = "Custom: " + name;
+                        lv.Tag = MultiLineCmd;
+                        lv.Checked = true;
+
+                        lv_benchmarkcvars.Items.Add(lv);
+                    }
                 }
 
                 foreach (ListViewItem item in lv_benchmarkcvars.Items)
@@ -285,15 +335,27 @@ namespace TF2_Benchmarker
 
         private void btn_benchadditem_Click(object sender, EventArgs e)
         {
-            if (txt_benchcommand.Text != "Command" && txt_benchcommand.Text.Length > 0)
+            if (txt_benchcommand.Text != "Command" && txt_benchmarkval.Text != "Value"
+                && txt_benchcommand.Text.Length > 0 && txt_benchmarkval.Text.Length > 0)
             {
-                lv_benchmarkcvars.Items.Add(txt_benchcommand.Text).SubItems.Add(txt_benchmarkval.Text);
+                ListViewItem item = new ListViewItem(txt_benchcommand.Text);
+                item.SubItems.Add(txt_benchmarkval.Text);
+                item.Checked = true;
+
+                lv_benchmarkcvars.Items.Add(item);
 
                 txt_benchcommand.Clear();
                 txt_benchmarkval.Clear();
 
-                Log("Benchmark command added");
+                Log("Command \"" + item.Text + " " + item.SubItems[1].Text + "\" added");
             }
+        }
+
+        private void btn_clearstats_Click(object sender, EventArgs e)
+        {
+            lb_log.Items.Clear();
+            lv_benchmarkcvars.Items.Clear();
+            lv_results.Items.Clear();
         }
 
         #endregion
@@ -368,6 +430,142 @@ namespace TF2_Benchmarker
 
         #endregion
 
+        #region Benchmark Functions
+
+        public void StartBenchmark(string args, string path, string comment)
+        {
+            StartGame(args, path);
+
+            // Parse csv file
+
+            FileInfo results = new FileInfo(path + @"\tf\sourcebench.csv");
+            if (!results.Exists)
+            {
+                Log("Benchmark results file not found.");
+                return;
+            }
+
+            using (TextFieldParser parser = new TextFieldParser(results.FullName))
+            {
+                parser.TextFieldType = FieldType.Delimited;
+                parser.SetDelimiters(",");
+                parser.HasFieldsEnclosedInQuotes = false;
+                parser.TrimWhiteSpace = true;
+
+                parser.ReadFields();
+                while (parser.PeekChars(1) != null)
+                {
+                    ListViewItem li = new ListViewItem();
+
+                    string[] row = parser.ReadFields();
+                    for (int i = 0; i < row.Length; i++)
+                    {
+                        if (i == 0)
+                            li.Text = row[i];
+                        else if (i == 1)
+                            li.SubItems.Add(row[i]);
+                        else if (i == 2)
+                            li.SubItems.Add(row[i]);
+                    }
+
+                    li.SubItems.Add(comment);
+                    lv_results.Items.Add(li);
+                }
+            }
+        }
+
+        public void StartGame(string args, string path)
+        {
+            // run game, wait until it finishes
+            TF2Proc = new ProcessStartInfo();
+            TF2Proc.CreateNoWindow = true;
+            TF2Proc.Arguments = args;
+            TF2Proc.FileName = path + @"\hl2.exe";
+
+            using (Process proc = Process.Start(TF2Proc))
+            {
+                proc.WaitForExit();
+            }
+        }
+
+        public void PrepDirectory(string path)
+        {
+            // Clean up csv
+
+            FileInfo benchcsv = new FileInfo(path + @"\tf\sourcebench.csv");
+            if (benchcsv.Exists)
+            {
+                benchcsv.CopyTo("sourcebench.csv.bak", true);
+                benchcsv.Delete();
+            }
+
+            // Create a directory for our autoexec if it doesn't already exist
+
+            string cfgpath = path + @"\tf\custom\tfbench\cfg";
+            Directory.CreateDirectory(cfgpath);
+
+            // Remove old autoexec
+
+            FileInfo autoexec = new FileInfo(cfgpath + @"\autoexec.cfg");
+            if (autoexec.Exists)
+                autoexec.Delete();
+        }
+
+        public void WriteCfg(List<string> config, string path)
+        {
+            using (StreamWriter file = new StreamWriter(path + @"\tf\custom\tfbench\cfg\autoexec.cfg", false))
+            {
+                foreach (string line in config)
+                    file.WriteLine(line);
+            }
+        }
+
+        public List<string> MergeConfig(List<string> dest, ListViewItem item)
+        {
+            var tempconfig = new List<string>(dest);
+            bool added = false;
+
+            if (item.Tag == null)
+            {
+                for (int i = 0; i < tempconfig.Count; i++)
+                {
+                    if (tempconfig[i].Contains(item.Text))
+                    {
+                        tempconfig[i] = String.Format("{0} \"{1}\"", item.Text, item.SubItems[1].Text);
+                        added = true;
+                    }
+                }
+
+                if (!added)
+                    tempconfig.Add(String.Format("{0} \"{1}\"", item.Text, item.SubItems[1].Text));
+            }
+            else
+            {
+                List<Cvar> commands = (List<Cvar>)item.Tag;
+
+                foreach (Cvar c in commands)
+                {
+                    added = false;
+
+                    for (int i = 0; i < tempconfig.Count; i++)
+                    {
+                        if (tempconfig[i].Contains(c.Command))
+                        {
+                            tempconfig[i] = String.Format("{0} \"{1}\"", c.Command, c.Value);
+                            added = true;
+                        }
+                    }
+
+                    if (!added)
+                        tempconfig.Add(String.Format("{0} \"{1}\"", c.Command, c.Value));
+                }
+            }
+
+            return tempconfig;
+        }
+
+        #endregion
+
         #region Helper Methods
 
         static string StripComments(string s)
@@ -382,6 +580,22 @@ namespace TF2_Benchmarker
             lb_log.TopIndex = lb_log.Items.Count - 1; // Scroll to bottom
         }
 
+        private string GetDxLevel()
+        {
+            string ret = "";
+            if (rb_dx8.Checked)
+                ret = " -dxlevel 80";
+            else if (rb_dx81.Checked)
+                ret = " -dxlevel 81";
+            else if (rb_dx90.Checked)
+                ret = " -dxlevel 90";
+            else if (rb_dx95.Checked)
+                ret = " -dxlevel 95";
+            else if (rb_dx98.Checked)
+                ret = " -dxlevel 98";
+
+            return ret;
+        }
 
         #endregion
     }
