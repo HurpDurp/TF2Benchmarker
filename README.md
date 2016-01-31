@@ -1,6 +1,8 @@
 # TF2Benchmarker
 An Automated Team Fortress 2 Benchmarker
 
+![Main View](Screenshots/Main.png "")
+
 ### Setup
 
 To begin, you need:
