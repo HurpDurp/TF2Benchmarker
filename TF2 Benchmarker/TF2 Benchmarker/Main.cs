@@ -86,6 +86,7 @@ namespace TF2_Benchmarker
                 FileInfo config = new FileInfo(path + @"\tf\cfg\config.cfg");
                 if (config.Exists)
                 {
+                    config.IsReadOnly = false;
                     config.CopyTo(path + @"\tf\cfg\config.cfg.bak", true);
                     config.Delete();
                 }
@@ -660,29 +661,27 @@ namespace TF2_Benchmarker
         {
             IniFile ConfigFile = new IniFile(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\TFBenchmark.ini");
 
-            if (File.Exists(ConfigFile.path))
-            {
-                // Load config
-                string path = ConfigFile.IniReadValue("General", "TFPath");
-
-                if (path.Length > 0)
-                {
-                    Settings.Add("TFPath", path);
-                    lbl_tf2path.Text = path;
-                }
-
-                txt_launchoptions.Text = ConfigFile.IniReadValue("General", "LaunchOptions");
-                txt_demoname.Text = ConfigFile.IniReadValue("General", "DemoName");
-
-                Log("Settings loaded.");
-            }
-            else
+            if (!File.Exists(ConfigFile.path))
             {
                 // Write a new config
                 ConfigFile.IniWriteValue("General", "TFPath", "");
                 ConfigFile.IniWriteValue("General", "LaunchOptions", "-novid -w 1920 -h 1080 -fullscreen");
                 ConfigFile.IniWriteValue("General", "DemoName", "benchmark01.dem");
             }
+
+            // Load config
+            string path = ConfigFile.IniReadValue("General", "TFPath");
+
+            if (path.Length > 0)
+            {
+                Settings.Add("TFPath", path);
+                lbl_tf2path.Text = path;
+            }
+
+            txt_launchoptions.Text = ConfigFile.IniReadValue("General", "LaunchOptions");
+            txt_demoname.Text = ConfigFile.IniReadValue("General", "DemoName");
+
+            Log("Settings loaded.");
         }
 
         #endregion
