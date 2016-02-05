@@ -21,6 +21,12 @@ To begin, you need:
 7. **(Optional)** Specify a demo to benchmark.
 8. Start the benchmark.
 
+### FPS File Format
+
+Any file with the extention `.cfg` can be imported to use as a 'base' to bechmark against.
+
+Comments `//` should be automatically ignored, as well as mixed use of `" "`s.
+
 ### Benchmark File Format
 
 To quickly add commands to benchmark, you can place your commands in a `.txt` file.
@@ -28,7 +34,7 @@ Each line will be parsed for a command, and benchmarked separately.
 ```
 example_command 1
 example_command "2"
-// Both of these are accepted, comments are automatically ignored
+// Both of these are accepted, comments like this are ignored
 ```
 
 If you want to run multiple commands simultaneously, you can do so in the following format:
@@ -40,12 +46,12 @@ Working examples can be found in the `Benchmark Examples` folder.
 
 ### Process
 
-Every time you start a benchmark, it will perform the following steps:
+Every time you start a benchmark, the program will perform the following steps:
 
 1. Back up any existing `cfg/config.cfg` and `sourcebench.csv` files.
 2. A clean config.cfg will be generated, based on the following:
   * If the `Default` option is selected, the game will be started with the `-default` parameter.
-  * If the `Custom Config` option is selected, the current FPS config will be loaded.
+  * If the `Custom Config` option is selected, checked commands from the `FPS Config` list will be written to `/tf/custom/tfbench/cfg/autoexec.cfg`
 3. The game is started, the DirectX level is set (if needed) and a benchmark is run with the clean configuration.
 4. For each command in the list, an `autoexec.cfg` will be generated.
   * Conflicts between existing commands and the benchmark values will be automatically resolved.
@@ -59,4 +65,8 @@ When benchmarking, it is important to note that there are a number of factors th
 
 * Ensure that you close out all applications that could interfere with the benchmark. These include internet browsers, VoIP applications, etc.
 * Under normal conditions benchmarking can result in variations of ±2-3 fps between identical runs. Keep this in mind while evaluating results.
-* Keeping `-dxlevel` in the launch options can negatively affect performance. Remember to remove it once you've set your DirectX level to the desired value.
+* Keeping `-dxlevel` in the launch options can negatively affect performance, and cause crashes. Remember to remove it once you've set your DirectX level to the desired value.
+
+### Known Issues
+
+There seems to be a noticeable performance improvement between the first and subsequent benchmarks when the game is not restarted in between. This might be due to caching speeding things up, or it could be the result of the steam cloud or other external factors overwriting settings. In any case, it needs more investigation.
