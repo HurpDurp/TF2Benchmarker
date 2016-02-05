@@ -68,6 +68,7 @@
             this.btn_loadbenchconfig = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.txt_benchcommand = new System.Windows.Forms.TextBox();
+            this.btn_save = new System.Windows.Forms.Button();
             this.gb_gameoptions.SuspendLayout();
             this.gb_config.SuspendLayout();
             this.tabControl.SuspendLayout();
@@ -85,7 +86,6 @@
             this.txt_launchoptions.Name = "txt_launchoptions";
             this.txt_launchoptions.Size = new System.Drawing.Size(553, 22);
             this.txt_launchoptions.TabIndex = 7;
-            this.txt_launchoptions.Text = "-novid -w 1920 -h 1080 -fullscreen";
             // 
             // btn_start
             // 
@@ -485,7 +485,6 @@
             this.txt_demoname.Name = "txt_demoname";
             this.txt_demoname.Size = new System.Drawing.Size(552, 22);
             this.txt_demoname.TabIndex = 22;
-            this.txt_demoname.Text = "benchmark1.dem";
             // 
             // txt_benchmarkval
             // 
@@ -539,11 +538,23 @@
             this.txt_benchcommand.Text = "Name";
             this.txt_benchcommand.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txt_benchcommand_KeyDown);
             // 
+            // btn_save
+            // 
+            this.btn_save.Location = new System.Drawing.Point(481, 15);
+            this.btn_save.Margin = new System.Windows.Forms.Padding(4);
+            this.btn_save.Name = "btn_save";
+            this.btn_save.Size = new System.Drawing.Size(110, 28);
+            this.btn_save.TabIndex = 19;
+            this.btn_save.Text = "Save Settings";
+            this.btn_save.UseVisualStyleBackColor = true;
+            this.btn_save.Click += new System.EventHandler(this.btn_save_Click);
+            // 
             // Benchmarker
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1197, 581);
+            this.Controls.Add(this.btn_save);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.tabControl);
             this.Controls.Add(this.gb_config);
@@ -611,6 +622,7 @@
         private System.Windows.Forms.TextBox txt_demoname;
         private System.Windows.Forms.Button btn_clearbench;
         private System.Windows.Forms.Button btn_clearfps;
+        private System.Windows.Forms.Button btn_save;
     }
 }
 

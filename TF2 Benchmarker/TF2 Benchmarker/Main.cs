@@ -48,6 +48,8 @@ namespace TF2_Benchmarker
             lv_results.Columns.Add("Comment", -2);
 
             Log("Started");
+
+            InitializeConfig();
         }
         
         #region Buttons
@@ -55,9 +57,17 @@ namespace TF2_Benchmarker
         private void btn_start_Click(object sender, EventArgs e)
         {
             string path;
-
-            if (!Benchmarking && Settings.TryGetValue("TFPath", out path))
+            
+            if (!Benchmarking && Settings.TryGetValue("TFPath", out path) && path.Length > 0)
             {
+                if (!File.Exists(path + @"\tf\" + txt_demoname.Text))
+                {
+                    Log("Could not find demo file, aborting.");
+                    Benchmarking = false;
+
+                    return;
+                }
+
                 btn_start.Text = "&Stop";
                 Benchmarking = true;
 
@@ -90,6 +100,8 @@ namespace TF2_Benchmarker
 
                     WriteCfg(fpsconfig, path);
                     StartBenchmark(args, path, "Baseline");
+
+                    rb_dxnone.Checked = true;
 
                     fpsconfig.Clear();
                 }
@@ -164,7 +176,10 @@ namespace TF2_Benchmarker
             }
             else
             {
-                Log("Stopping benchmark");
+                if (Benchmarking)
+                    Log("Stopping benchmark");
+                else
+                    Log("TF2 path not set, aborting.");
 
                 btn_start.Text = "&Start";
                 Benchmarking = false;
@@ -382,6 +397,21 @@ namespace TF2_Benchmarker
         private void btn_clearfps_Click(object sender, EventArgs e)
         {
             lv_commands.Items.Clear();
+        }
+
+        private void btn_save_Click(object sender, EventArgs e)
+        {
+            IniFile ConfigFile = new IniFile(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\TFBenchmark.ini");
+
+            string path;
+
+            if (Settings.TryGetValue("TFPath", out path))
+                ConfigFile.IniWriteValue("General", "TFPath", path);
+
+            ConfigFile.IniWriteValue("General", "LaunchOptions", txt_launchoptions.Text);
+            ConfigFile.IniWriteValue("General", "DemoName", txt_demoname.Text);
+
+            Log("Settings saved.");
         }
 
         #endregion
@@ -620,6 +650,39 @@ namespace TF2_Benchmarker
                 ret = " -dxlevel 98";
 
             return ret;
+        }
+
+        #endregion
+
+        #region Configuration File Handling
+
+        private void InitializeConfig()
+        {
+            IniFile ConfigFile = new IniFile(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\TFBenchmark.ini");
+
+            if (File.Exists(ConfigFile.path))
+            {
+                // Load config
+                string path = ConfigFile.IniReadValue("General", "TFPath");
+
+                if (path.Length > 0)
+                {
+                    Settings.Add("TFPath", path);
+                    lbl_tf2path.Text = path;
+                }
+
+                txt_launchoptions.Text = ConfigFile.IniReadValue("General", "LaunchOptions");
+                txt_demoname.Text = ConfigFile.IniReadValue("General", "DemoName");
+
+                Log("Settings loaded.");
+            }
+            else
+            {
+                // Write a new config
+                ConfigFile.IniWriteValue("General", "TFPath", "");
+                ConfigFile.IniWriteValue("General", "LaunchOptions", "-novid -w 1920 -h 1080 -fullscreen");
+                ConfigFile.IniWriteValue("General", "DemoName", "benchmark01.dem");
+            }
         }
 
         #endregion
