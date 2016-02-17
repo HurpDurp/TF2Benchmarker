@@ -16,14 +16,16 @@ namespace TF2_Benchmarker
 
     public partial class Benchmarker : Form
     {
-        Dictionary<string, string> Settings;
+        string TFPath;
         bool Benchmarking = false;
-        
+
+        #region Forms
+
         public Benchmarker()
         {
             InitializeComponent();
 
-            Settings = new Dictionary<string, string>();
+            TFPath = "";
 
             // Radio buttons
             rb_dxnone.Checked = true;
@@ -51,16 +53,31 @@ namespace TF2_Benchmarker
 
             InitializeConfig();
         }
-        
+
+        private void Benchmarker_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            // Remove temporary directory
+            
+            if (TFPath.Length > 0)
+            {
+                string path = TFPath + @"\tf\custom\tfbench";
+
+                if (Directory.Exists(path))
+                {
+                    Directory.Delete(path, true);
+                }
+            }
+        }
+
+        #endregion
+
         #region Buttons
 
         private void btn_start_Click(object sender, EventArgs e)
         {
-            string path;
-            
-            if (!Benchmarking && Settings.TryGetValue("TFPath", out path) && path.Length > 0)
+            if (!Benchmarking && TFPath.Length > 0)
             {
-                if (!File.Exists(path + @"\tf\" + txt_demoname.Text))
+                if (!File.Exists(TFPath + @"\tf\" + txt_demoname.Text))
                 {
                     Log("Could not find demo file, aborting.");
                     Benchmarking = false;
@@ -73,7 +90,7 @@ namespace TF2_Benchmarker
 
                 Log("Starting...");
 
-                PrepDirectory(path);
+                PrepDirectory(TFPath);
                 
                 // Generate a baseline benchmark
 
@@ -83,11 +100,11 @@ namespace TF2_Benchmarker
                 string args;
 
                 // Back up old config.cfg
-                FileInfo config = new FileInfo(path + @"\tf\cfg\config.cfg");
+                FileInfo config = new FileInfo(TFPath + @"\tf\cfg\config.cfg");
                 if (config.Exists)
                 {
                     config.IsReadOnly = false;
-                    config.CopyTo(path + @"\tf\cfg\config.cfg.bak", true);
+                    config.CopyTo(TFPath + @"\tf\cfg\config.cfg.bak", true);
                     config.Delete();
                 }
 
@@ -99,11 +116,10 @@ namespace TF2_Benchmarker
 
                     fpsconfig.Add("host_writeconfig \"config\" full");
 
-                    WriteCfg(fpsconfig, path);
-                    StartBenchmark(args, path, "Baseline");
+                    WriteCfg(fpsconfig, TFPath);
+                    StartBenchmark(args, TFPath, "Baseline");
 
                     rb_dxnone.Checked = true;
-
                     fpsconfig.Clear();
                 }
                 else
@@ -115,8 +131,8 @@ namespace TF2_Benchmarker
                         if (item.Checked)
                             fpsconfig.Add(String.Format("{0} \"{1}\"", item.Text, item.SubItems[1].Text));
 
-                    WriteCfg(fpsconfig, path);
-                    StartBenchmark(args, path, "Baseline");
+                    WriteCfg(fpsconfig, TFPath);
+                    StartBenchmark(args, TFPath, "Baseline");
                 }
 
                 // Set it to read only, so we don't overwrite it while benchmarking
@@ -146,10 +162,10 @@ namespace TF2_Benchmarker
 
                     ConfigToWrite = MergeConfig(fpsconfig, item);
 
-                    PrepDirectory(path);
-                    WriteCfg(ConfigToWrite, path);
+                    PrepDirectory(TFPath);
+                    WriteCfg(ConfigToWrite, TFPath);
                     
-                    StartBenchmark(args, path, name);
+                    StartBenchmark(args, TFPath, name);
                     
                     Log("Done.");
                 }
@@ -163,10 +179,10 @@ namespace TF2_Benchmarker
                 }
 
                 // Replace it with the original
-                config = new FileInfo(path + @"\tf\cfg\config.cfg.bak");
+                config = new FileInfo(TFPath + @"\tf\cfg\config.cfg.bak");
                 if (config.Exists)
                 {
-                    config.CopyTo(path + @"\tf\cfg\config.cfg");
+                    config.CopyTo(TFPath + @"\tf\cfg\config.cfg");
                     config.Delete();
                 }
 
@@ -198,7 +214,7 @@ namespace TF2_Benchmarker
 
                 if (f.Exists)
                 {
-                    Settings["TFPath"] = TFFolderDialog.SelectedPath;
+                    TFPath = TFFolderDialog.SelectedPath;
                     lbl_tf2path.Text = TFFolderDialog.SelectedPath;
 
                     Log("TF2 path set");
@@ -403,11 +419,9 @@ namespace TF2_Benchmarker
         private void btn_save_Click(object sender, EventArgs e)
         {
             IniFile ConfigFile = new IniFile(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\TFBenchmark.ini");
-
-            string path;
-
-            if (Settings.TryGetValue("TFPath", out path))
-                ConfigFile.IniWriteValue("General", "TFPath", path);
+            
+            if (TFPath.Length > 0)
+                ConfigFile.IniWriteValue("General", "TFPath", TFPath);
 
             ConfigFile.IniWriteValue("General", "LaunchOptions", txt_launchoptions.Text);
             ConfigFile.IniWriteValue("General", "DemoName", txt_demoname.Text);
@@ -622,7 +636,7 @@ namespace TF2_Benchmarker
 
         #endregion
 
-        #region Helper Methods
+        #region Helper Functions
 
         static string StripComments(string s)
         {
@@ -674,7 +688,7 @@ namespace TF2_Benchmarker
 
             if (path.Length > 0)
             {
-                Settings.Add("TFPath", path);
+                TFPath = path;
                 lbl_tf2path.Text = path;
             }
 
@@ -685,20 +699,5 @@ namespace TF2_Benchmarker
         }
 
         #endregion
-
-        private void Benchmarker_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            string path;
-
-            if (Settings.TryGetValue("TFPath", out path))
-            {
-                path += @"\tf\custom\tfbench";
-
-                if (Directory.Exists(path))
-                {
-                    Directory.Delete(path, true);
-                }
-            }
-        }
     }
 }

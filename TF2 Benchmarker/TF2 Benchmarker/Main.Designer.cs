@@ -564,7 +564,7 @@
             this.Margin = new System.Windows.Forms.Padding(4);
             this.MaximizeBox = false;
             this.Name = "Benchmarker";
-            this.Text = "TF2 Benchmarker";
+            this.Text = "TF2 Bench";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Benchmarker_FormClosing);
             this.gb_gameoptions.ResumeLayout(false);
             this.gb_gameoptions.PerformLayout();
