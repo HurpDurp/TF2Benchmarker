@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Microsoft.VisualBasic.FileIO;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using Microsoft.VisualBasic.FileIO;
 
 namespace TF2_Benchmarker
 {
@@ -17,7 +18,13 @@ namespace TF2_Benchmarker
     public partial class Benchmarker : Form
     {
         string TFPath;
-        bool Benchmarking = false;
+        bool Benchmarking;
+
+        // Hotkey functionality
+        [DllImport("user32.dll")]
+        private static extern bool RegisterHotKey(IntPtr hWnd, int id, int fsModifiers, int vk);
+        [DllImport("user32.dll")]
+        private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
 
         #region Forms
 
@@ -26,6 +33,7 @@ namespace TF2_Benchmarker
             InitializeComponent();
 
             TFPath = "";
+            Benchmarking = false;
 
             // Radio buttons
             rb_dxnone.Checked = true;
@@ -49,6 +57,10 @@ namespace TF2_Benchmarker
             lv_results.Columns.Add("Variability", 75);
             lv_results.Columns.Add("Comment", -2);
 
+            // Hotkey
+            int id = 0;
+            RegisterHotKey(this.Handle, id, (int)KeyModifier.Shift, Keys.F2.GetHashCode());
+
             Log("Started");
 
             InitializeConfig();
@@ -67,6 +79,9 @@ namespace TF2_Benchmarker
                     Directory.Delete(path, true);
                 }
             }
+
+            // Unregister hotkey
+            UnregisterHotKey(this.Handle, 0);
         }
 
         #endregion
@@ -194,7 +209,7 @@ namespace TF2_Benchmarker
             else
             {
                 if (Benchmarking)
-                    Log("Stopping benchmark");
+                    Log("Stopping benchmark...");
                 else
                     Log("TF2 path not set, aborting.");
 
@@ -210,9 +225,9 @@ namespace TF2_Benchmarker
             
             if (TFFolderDialog.ShowDialog() == DialogResult.OK)
             {
-                FileInfo f = new FileInfo(TFFolderDialog.SelectedPath + @"\hl2.exe");
+                var hl2exe = new FileInfo(TFFolderDialog.SelectedPath + @"\hl2.exe");
 
-                if (f.Exists)
+                if (hl2exe.Exists)
                 {
                     TFPath = TFFolderDialog.SelectedPath;
                     lbl_tf2path.Text = TFFolderDialog.SelectedPath;
@@ -247,7 +262,6 @@ namespace TF2_Benchmarker
 
                         if (noComments.Trim().Length > 0)
                             FPSConfig.Add(noComments);
-
                     }
                 }
 
@@ -699,5 +713,30 @@ namespace TF2_Benchmarker
         }
 
         #endregion
+
+        #region Hotkey
+
+        enum KeyModifier
+        {
+            None = 0,
+            Alt = 1,
+            Control = 2,
+            Shift = 4,
+            WinKey = 8
+        }
+
+        protected override void WndProc(ref Message m)
+        {
+            base.WndProc(ref m);
+
+            if (m.Msg == 0x0312 && Benchmarking)
+            {
+                Benchmarking = false;
+                btn_start.Text = "&Start";
+                Log("Stopping benchmark...");
+            }
+        }
     }
+
+    #endregion
 }
