@@ -22,6 +22,12 @@ To begin, you need:
 7. Specify the demo to benchmark.
 8. Start the benchmark.
 
+### Keys
+
+`Shift + F2` will stop a benchmark while it is running. TF2 will not immediately close, instead it will just finish the current command and stop. The `TFBench` window does not need focus for this to work.
+
+`Alt + S` will start and stop benchmarking while the window is in focus.
+
 ### FPS File Format
 
 Any file with the extention `.cfg` can be imported to use as a 'base' to bechmark against.
@@ -54,7 +60,7 @@ Every time you start a benchmark, the program will perform the following steps:
   * If the `Default` option is selected, the game will be started with the `-default` parameter.
   * If the `Custom Config` option is selected, checked commands from the `FPS Config` list will be written to `/tf/custom/tfbench/cfg/autoexec.cfg`
 3. The game is started, the DirectX level is set (if needed) and a benchmark is run with the clean configuration.
-4. For each command in the list, an `autoexec.cfg` will be generated.
+4. For each command in the list, an `autoexec.cfg` will be generated with that command combined with the FPS config (if used).
   * Conflicts between existing commands and the benchmark values will be automatically resolved.
 5. Each command is benchmarked, with a restart between each command.
 6. Results are parsed from the `sourcebench.csv` file, and displayed in the results tab.
