@@ -8,6 +8,7 @@ An Automated Team Fortress 2 Benchmarker
 To begin, you need:
 - A Team Fortress 2 installation.
 - **(Optional)** FPS config to benchmark from.
+- A demo, placed in the `tf` directory, to benchmark against.
 - A list of commands to benchmark.
 
 ### Usage
@@ -18,7 +19,7 @@ To begin, you need:
 4. Load an existing FPS config or use the default TF2 configuration.
 5. Load or add commands to benchmark. The file format for loading benchmarks is described below.
 6. **(Optional)** In the `Benchmark List` and `FPS Config` tabs, uncheck values you don't wish to use.
-7. **(Optional)** Specify a demo to benchmark.
+7. Specify the demo to benchmark.
 8. Start the benchmark.
 
 ### FPS File Format
