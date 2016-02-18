@@ -24,7 +24,7 @@ To begin, you need:
 
 ### Keys
 
-`Shift + F2` will stop a benchmark while it is running. TF2 will not immediately close, instead it will just finish the current command and stop. The `TFBench` window does not need focus for this to work.
+`Shift + F10` will stop a benchmark while it is running. TF2 will not immediately close, instead it will just finish the current command and stop. The `TFBench` window does not need focus for this to work.
 
 `Alt + S` will start and stop benchmarking while the window is in focus.
 
