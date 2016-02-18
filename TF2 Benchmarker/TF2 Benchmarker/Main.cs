@@ -9,23 +9,32 @@ using System.Windows.Forms;
 
 namespace TF2_Benchmarker
 {
-    public struct Cvar
+    struct Cvar
     {
-        public string Command;
-        public string Value;
+        public string Command, Value;
+        public List<Cvar> MultiLineCommand;
+        // Horrible hack to avoid restructuring a bunch of stuff,
+        // This struct probably needs to be made a class.
+
+        public Cvar(string c, string v)
+        {
+            Command = c;
+            Value = v;
+            MultiLineCommand = null;
+        }
+
+        public Cvar(string c, List<Cvar> m)
+        {
+            Command = c;
+            Value = null;
+            MultiLineCommand = m;
+        }
     }
 
     public partial class Benchmarker : Form
     {
         string TFPath;
-        bool Benchmarking;
-
-        // Hotkey functionality
-        [DllImport("user32.dll")]
-        private static extern bool RegisterHotKey(IntPtr hWnd, int id, int fsModifiers, int vk);
-        [DllImport("user32.dll")]
-        private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
-
+        
         #region Forms
 
         public Benchmarker()
@@ -33,7 +42,6 @@ namespace TF2_Benchmarker
             InitializeComponent();
 
             TFPath = "";
-            Benchmarking = false;
 
             // Radio buttons
             rb_dxnone.Checked = true;
@@ -58,8 +66,11 @@ namespace TF2_Benchmarker
             lv_results.Columns.Add("Comment", -2);
 
             // Hotkey
-            int id = 0;
-            RegisterHotKey(this.Handle, id, (int)KeyModifier.Shift, Keys.F2.GetHashCode());
+            RegisterHotKey(this.Handle, 0, (int)KeyModifier.Shift, Keys.F10.GetHashCode());
+
+            // BackgroundWorker
+            WorkerThread.WorkerSupportsCancellation = true;
+            WorkerThread.WorkerReportsProgress = true;
 
             Log("Started");
 
@@ -73,11 +84,12 @@ namespace TF2_Benchmarker
             if (TFPath.Length > 0)
             {
                 string path = TFPath + @"\tf\custom\tfbench";
-
-                if (Directory.Exists(path))
+                try
                 {
-                    Directory.Delete(path, true);
+                    if (Directory.Exists(path))
+                        Directory.Delete(path, true);
                 }
+                catch { }
             }
 
             // Unregister hotkey
@@ -90,131 +102,42 @@ namespace TF2_Benchmarker
 
         private void btn_start_Click(object sender, EventArgs e)
         {
-            if (!Benchmarking && TFPath.Length > 0)
+            if (!WorkerThread.IsBusy && TFPath.Length > 0)
             {
-                if (!File.Exists(TFPath + @"\tf\" + txt_demoname.Text))
-                {
-                    Log("Could not find demo file, aborting.");
-                    Benchmarking = false;
-
-                    return;
-                }
-
                 btn_start.Text = "&Stop";
-                Benchmarking = true;
 
-                Log("Starting...");
-
-                PrepDirectory(TFPath);
-                
-                // Generate a baseline benchmark
-
-                Log("Generating baseline benchmark...");
-
-                List<string> fpsconfig = new List<string>();
-                string args;
-
-                // Back up old config.cfg
-                FileInfo config = new FileInfo(TFPath + @"\tf\cfg\config.cfg");
-                if (config.Exists)
+                // Get FPS config commands
+                var FPSConfig = new List<Cvar>();
+                foreach (ListViewItem item in lv_commands.Items)
                 {
-                    config.IsReadOnly = false;
-                    config.CopyTo(TFPath + @"\tf\cfg\config.cfg.bak", true);
-                    config.Delete();
+                    if (item.Checked)
+                        FPSConfig.Add(new Cvar(item.Text, item.SubItems[1].Text));
                 }
 
-                // Generate a fresh config.cfg with the first run of the benchmark, and set directX level if we need to
-                if (rb_defaultconfig.Checked)
-                {
-                    // Use default config
-                    args = "-steam -game tf " + txt_launchoptions.Text + GetDxLevel() + " -default +timedemoquit " + txt_demoname.Text;
-
-                    fpsconfig.Add("host_writeconfig \"config\" full");
-
-                    WriteCfg(fpsconfig, TFPath);
-                    StartBenchmark(args, TFPath, "Baseline");
-
-                    rb_dxnone.Checked = true;
-                    fpsconfig.Clear();
-                }
-                else
-                {
-                    // Use fps config instead of defaults
-                    args = "-steam -game tf " + txt_launchoptions.Text + GetDxLevel() + " +timedemoquit " + txt_demoname.Text;
-
-                    foreach (ListViewItem item in lv_commands.Items)
-                        if (item.Checked)
-                            fpsconfig.Add(String.Format("{0} \"{1}\"", item.Text, item.SubItems[1].Text));
-
-                    WriteCfg(fpsconfig, TFPath);
-                    StartBenchmark(args, TFPath, "Baseline");
-                }
-
-                // Set it to read only, so we don't overwrite it while benchmarking
-                config.Refresh();
-                if (config.Exists)
-                    config.IsReadOnly = true;
-
-                Log("Done.");
-
-                // Main benchmark loop
-
-                List<string> ConfigToWrite;
-                args = "-steam -game tf " + txt_launchoptions.Text + " +timedemoquit " + txt_demoname.Text;
-
+                // Get benchmark commands
+                var BenchmarkCvars = new List<Cvar>();
                 foreach (ListViewItem item in lv_benchmarkcvars.Items)
                 {
-                    if (!item.Checked || !Benchmarking)
-                        continue;
-
-                    string name;
-                    if (item.Tag == null)
-                        name = item.Text + " " + item.SubItems[1].Text;
-                    else
-                        name = item.Text;
-
-                    Log("Benchmarking " + name + "...");
-
-                    ConfigToWrite = MergeConfig(fpsconfig, item);
-
-                    PrepDirectory(TFPath);
-                    WriteCfg(ConfigToWrite, TFPath);
-                    
-                    StartBenchmark(args, TFPath, name);
-                    
-                    Log("Done.");
+                    if (item.Checked)
+                        if (item.Tag == null)
+                            BenchmarkCvars.Add(new Cvar(item.Text, item.SubItems[1].Text));
+                        else
+                            BenchmarkCvars.Add(new Cvar(item.Text, item.Tag as List<Cvar>));
                 }
 
-                // Clean up, delete our generated config
-                config.Refresh();
-                if (config.Exists)
-                {
-                    config.IsReadOnly = false;
-                    config.Delete();
-                }
+                Object[] Args = new Object[] { FPSConfig, BenchmarkCvars };
 
-                // Replace it with the original
-                config = new FileInfo(TFPath + @"\tf\cfg\config.cfg.bak");
-                if (config.Exists)
-                {
-                    config.CopyTo(TFPath + @"\tf\cfg\config.cfg");
-                    config.Delete();
-                }
-
-                Log("Benchmark Complete.");
-
-                btn_start.Text = "&Start";
-                Benchmarking = false;
+                WorkerThread.RunWorkerAsync(Args);
             }
             else
             {
-                if (Benchmarking)
-                    Log("Stopping benchmark...");
+                if (WorkerThread.IsBusy)
+                    Log("Stopping benchmark after this run.");
                 else
                     Log("TF2 path not set, aborting.");
 
                 btn_start.Text = "&Start";
-                Benchmarking = false;
+                WorkerThread.CancelAsync();
             }
         }
 
@@ -374,11 +297,10 @@ namespace TF2_Benchmarker
 
                             try
                             {
-                                Cvar c;
-                                c.Command = cmds[i].Substring(0, cmds[i].IndexOf(" "));
-                                c.Value = cmds[i].Substring(cmds[i].IndexOf(" ") + 1);
+                                string command = cmds[i].Substring(0, cmds[i].IndexOf(" "));
+                                string val = cmds[i].Substring(cmds[i].IndexOf(" ") + 1);
 
-                                MultiLineCmd.Add(c);
+                                MultiLineCmd.Add(new Cvar(command, val));
                             }
                             catch
                             {
@@ -513,9 +435,126 @@ namespace TF2_Benchmarker
 
         #endregion
 
+        #region Worker Thread
+
+        private void WorkerThread_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
+        {
+            if (!File.Exists(TFPath + @"\tf\" + txt_demoname.Text))
+            {
+                WorkerThread.ReportProgress(0, "Could not find demo file, aborting.");
+                return;
+            }
+
+            WorkerThread.ReportProgress(0, "Starting...");
+            PrepDirectory(TFPath);
+
+            // Generate a baseline benchmark
+
+            WorkerThread.ReportProgress(0, "Generating baseline benchmark...");
+            
+            string args;
+            Object[] WorkerArgs = e.Argument as Object[];
+            List<Cvar> FPSConfig = WorkerArgs[0] as List<Cvar>;
+            List<Cvar> BenchCvars = WorkerArgs[1] as List<Cvar>;
+
+            // Back up old config.cfg
+            var config = new FileInfo(TFPath + @"\tf\cfg\config.cfg");
+            if (config.Exists)
+            {
+                config.IsReadOnly = false;
+                config.CopyTo(TFPath + @"\tf\cfg\config.cfg.bak", true);
+                config.Delete();
+            }
+            
+            // Generate a fresh config.cfg with the first run of the benchmark, and set directX level if we need to
+            if (rb_defaultconfig.Checked)
+            {
+                // Use default config
+                args = "-steam -game tf " + txt_launchoptions.Text + GetDxLevel() + " -default +timedemoquit " + txt_demoname.Text;
+
+                FPSConfig.Add(new Cvar("host_writeconfig", "\"config\" full"));
+
+                WriteCfg(FPSConfig, TFPath, false);
+                StartBenchmark(args, TFPath, "Baseline");
+
+                rb_dxnone.Checked = true;
+                FPSConfig.Clear();
+            }
+            else
+            {
+                // Use fps config instead of defaults
+                args = "-steam -game tf " + txt_launchoptions.Text + GetDxLevel() + " +timedemoquit " + txt_demoname.Text;
+                
+                WriteCfg(FPSConfig, TFPath);
+                StartBenchmark(args, TFPath, "Baseline");
+            }
+
+            // Set it to read only, so we don't overwrite it while benchmarking
+            config.Refresh();
+            if (config.Exists)
+                config.IsReadOnly = true;
+
+            WorkerThread.ReportProgress(0, "Done.");
+
+            // Main benchmark loop
+
+            List<Cvar> ConfigToWrite;
+            args = "-steam -game tf " + txt_launchoptions.Text + " +timedemoquit " + txt_demoname.Text;
+
+            foreach (var item in BenchCvars)
+            {
+                if (WorkerThread.CancellationPending)
+                {
+                    e.Cancel = true;
+                    break;
+                }
+
+                WorkerThread.ReportProgress(0, "Benchmarking " + PrintCvar(item) + "...");
+
+                ConfigToWrite = MergeConfig(FPSConfig, item);
+
+                PrepDirectory(TFPath);
+                WriteCfg(ConfigToWrite, TFPath);
+
+                StartBenchmark(args, TFPath, PrintCvar(item));
+
+                WorkerThread.ReportProgress(0, "Done.");
+            }
+
+            // Clean up, delete our generated config
+            config.Refresh();
+            if (config.Exists)
+            {
+                config.IsReadOnly = false;
+                config.Delete();
+            }
+
+            // Replace it with the original
+            config = new FileInfo(TFPath + @"\tf\cfg\config.cfg.bak");
+            if (config.Exists)
+            {
+                config.CopyTo(TFPath + @"\tf\cfg\config.cfg");
+                config.Delete();
+            }
+
+            WorkerThread.ReportProgress(0, "Benchmark Complete.");
+        }
+
+        private void WorkerThread_ProgressChanged(object sender, System.ComponentModel.ProgressChangedEventArgs e)
+        {
+            Log(e.UserState as String);
+        }
+
+        private void WorkerThread_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
+        {
+            btn_start.Text = "&Start";
+        }
+
+        #endregion
+
         #region Benchmark Functions
 
-        public void StartBenchmark(string args, string path, string comment)
+        private void StartBenchmark(string args, string path, string comment)
         {
             StartGame(args, path);
 
@@ -524,7 +563,7 @@ namespace TF2_Benchmarker
             FileInfo results = new FileInfo(path + @"\tf\sourcebench.csv");
             if (!results.Exists)
             {
-                Log("Benchmark results file not found.");
+                WorkerThread.ReportProgress(0, "Benchmark results file not found.");
                 return;
             }
 
@@ -552,12 +591,21 @@ namespace TF2_Benchmarker
                     }
 
                     li.SubItems.Add(comment);
-                    lv_results.Items.Add(li);
+
+                    if (lv_results.InvokeRequired)
+                    {
+                        lv_results.Invoke(new MethodInvoker(delegate
+                        {
+                            lv_results.Items.Add(li);
+                        }));
+                    }
+                    else
+                        lv_results.Items.Add(li);
                 }
             }
         }
 
-        public void StartGame(string args, string path)
+        private void StartGame(string args, string path)
         {
             // run game, wait until it finishes
 
@@ -572,7 +620,7 @@ namespace TF2_Benchmarker
             }
         }
 
-        public void PrepDirectory(string path)
+        private void PrepDirectory(string path)
         {
             // Clean up csv
 
@@ -595,53 +643,56 @@ namespace TF2_Benchmarker
                 autoexec.Delete();
         }
 
-        public void WriteCfg(List<string> config, string path)
+        private void WriteCfg(List<Cvar> config, string path, bool format = true)
         {
             using (StreamWriter file = new StreamWriter(path + @"\tf\custom\tfbench\cfg\autoexec.cfg", false))
             {
-                foreach (string line in config)
-                    file.WriteLine(line);
+                foreach (Cvar c in config)
+                    if (format)
+                        file.WriteLine(String.Format("{0} \"{1}\"", c.Command, c.Value));
+                    else
+                        file.WriteLine(PrintCvar(c));
             }
         }
 
-        public List<string> MergeConfig(List<string> dest, ListViewItem item)
+        private List<Cvar> MergeConfig(List<Cvar> dest, Cvar c)
         {
-            var tempconfig = new List<string>(dest);
+            var tempconfig = new List<Cvar>(dest);
             bool added = false;
 
-            if (item.Tag == null)
+            if (c.Value != null)
             {
                 for (int i = 0; i < tempconfig.Count; i++)
                 {
-                    if (tempconfig[i].Contains(item.Text))
+                    if (tempconfig[i].Command == c.Command)
                     {
-                        tempconfig[i] = String.Format("{0} \"{1}\"", item.Text, item.SubItems[1].Text);
+                        tempconfig[i] = c;
                         added = true;
                     }
                 }
 
                 if (!added)
-                    tempconfig.Add(String.Format("{0} \"{1}\"", item.Text, item.SubItems[1].Text));
+                    tempconfig.Add(c);
             }
             else
             {
-                List<Cvar> commands = (List<Cvar>)item.Tag;
+                List<Cvar> commands = c.MultiLineCommand;
 
-                foreach (Cvar c in commands)
+                foreach (Cvar d in commands)
                 {
                     added = false;
 
                     for (int i = 0; i < tempconfig.Count; i++)
                     {
-                        if (tempconfig[i].Contains(c.Command))
+                        if (tempconfig[i].Command == d.Command)
                         {
-                            tempconfig[i] = String.Format("{0} \"{1}\"", c.Command, c.Value);
+                            tempconfig[i] = d;
                             added = true;
                         }
                     }
 
                     if (!added)
-                        tempconfig.Add(String.Format("{0} \"{1}\"", c.Command, c.Value));
+                        tempconfig.Add(d);
                 }
             }
 
@@ -679,6 +730,14 @@ namespace TF2_Benchmarker
                 ret = " -dxlevel 98";
 
             return ret;
+        }
+
+        private string PrintCvar(Cvar c)
+        {
+            if (c.Value != null)
+                return c.Command + " " + c.Value;
+            else
+                return c.Command;
         }
 
         #endregion
@@ -724,16 +783,24 @@ namespace TF2_Benchmarker
             Shift = 4,
             WinKey = 8
         }
+        
+        [DllImport("user32.dll")]
+        private static extern bool RegisterHotKey(IntPtr hWnd, int id, int fsModifiers, int vk);
+
+        [DllImport("user32.dll")]
+        private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
 
         protected override void WndProc(ref Message m)
         {
             base.WndProc(ref m);
 
-            if (m.Msg == 0x0312 && Benchmarking)
+            if (m.Msg == 0x0312 && WorkerThread.IsBusy)
             {
-                Benchmarking = false;
+                System.Media.SystemSounds.Hand.Play();
+
+                WorkerThread.CancelAsync();
                 btn_start.Text = "&Start";
-                Log("Stopping benchmark...");
+                Log("Stopping benchmark after this run.");
             }
         }
     }
