@@ -9,28 +9,6 @@ using System.Windows.Forms;
 
 namespace TF2_Benchmarker
 {
-    struct Cvar
-    {
-        public string Command, Value;
-        public List<Cvar> MultiLineCommand;
-        // Horrible hack to avoid restructuring a bunch of stuff,
-        // This struct probably needs to be made a class.
-
-        public Cvar(string c, string v)
-        {
-            Command = c;
-            Value = v;
-            MultiLineCommand = null;
-        }
-
-        public Cvar(string c, List<Cvar> m)
-        {
-            Command = c;
-            Value = null;
-            MultiLineCommand = m;
-        }
-    }
-
     public partial class Benchmarker : Form
     {
         string TFPath;
@@ -432,6 +410,38 @@ namespace TF2_Benchmarker
             }
         }
 
+        private void txt_configaddname_Enter(object sender, EventArgs e)
+        {
+            BeginInvoke((Action)delegate
+            {
+                txt_configaddname.SelectAll();
+            });
+        }
+
+        private void txt_configaddvalue_Enter(object sender, EventArgs e)
+        {
+            BeginInvoke((Action)delegate
+            {
+                txt_configaddname.SelectAll();
+            });
+        }
+
+        private void txt_benchcommand_Enter(object sender, EventArgs e)
+        {
+            BeginInvoke((Action)delegate
+            {
+                txt_configaddname.SelectAll();
+            });
+        }
+
+        private void txt_benchmarkval_Enter(object sender, EventArgs e)
+        {
+            BeginInvoke((Action)delegate
+            {
+                txt_configaddname.SelectAll();
+            });
+        }
+
         #endregion
 
         #region Worker Thread
@@ -586,9 +596,7 @@ namespace TF2_Benchmarker
                     {
                         if (i == 0)
                             li.Text = row[i];
-                        else if (i == 1)
-                            li.SubItems.Add(row[i]);
-                        else if (i == 2)
+                        else if (i == 1 || i == 2)
                             li.SubItems.Add(row[i]);
                     }
 
