@@ -135,8 +135,7 @@ namespace TF2_Benchmarker
                     Log("Stopping benchmark after this run.");
                 else
                     Log("TF2 path not set, aborting.");
-
-                btn_start.Text = "&Start";
+                
                 WorkerThread.CancelAsync();
             }
         }
@@ -441,7 +440,7 @@ namespace TF2_Benchmarker
         {
             if (!File.Exists(TFPath + @"\tf\" + txt_demoname.Text))
             {
-                WorkerThread.ReportProgress(0, "Could not find demo file, aborting.");
+                WorkerThread.ReportProgress(0, "Could not find demo file " + txt_demoname.Text + ", aborting.");
                 return;
             }
 
@@ -484,12 +483,15 @@ namespace TF2_Benchmarker
             {
                 // Use fps config instead of defaults
                 args = "-steam -game tf " + txt_launchoptions.Text + GetDxLevel() + " +timedemoquit " + txt_demoname.Text;
-                
-                WriteCfg(FPSConfig, TFPath);
+
+                var DefaultConfig = new List<Cvar>(FPSConfig);
+                DefaultConfig.Add(new Cvar("host_writeconfig", "\"config\" full"));
+
+                WriteCfg(DefaultConfig, TFPath);
                 StartBenchmark(args, TFPath, "Baseline");
             }
 
-            // Set it to read only, so we don't overwrite it while benchmarking
+            // Set our newly generated config.cfg it to read only, so we don't overwrite it while benchmarking
             config.Refresh();
             if (config.Exists)
                 config.IsReadOnly = true;
@@ -498,7 +500,7 @@ namespace TF2_Benchmarker
 
             // Main benchmark loop
 
-            List<Cvar> ConfigToWrite;
+            List<Cvar> AutoexecConfig;
             args = "-steam -game tf " + txt_launchoptions.Text + " +timedemoquit " + txt_demoname.Text;
 
             foreach (var item in BenchCvars)
@@ -511,10 +513,10 @@ namespace TF2_Benchmarker
 
                 WorkerThread.ReportProgress(0, "Benchmarking " + PrintCvar(item) + "...");
 
-                ConfigToWrite = MergeConfig(FPSConfig, item);
+                AutoexecConfig = MergeConfig(FPSConfig, item);
 
                 PrepDirectory(TFPath);
-                WriteCfg(ConfigToWrite, TFPath);
+                WriteCfg(AutoexecConfig, TFPath);
 
                 StartBenchmark(args, TFPath, PrintCvar(item));
 
@@ -799,7 +801,6 @@ namespace TF2_Benchmarker
                 System.Media.SystemSounds.Hand.Play();
 
                 WorkerThread.CancelAsync();
-                btn_start.Text = "&Start";
                 Log("Stopping benchmark after this run.");
             }
         }
