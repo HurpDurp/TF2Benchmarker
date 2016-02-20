@@ -572,14 +572,14 @@ namespace TF2_Benchmarker
 
             // Parse csv file
 
-            FileInfo results = new FileInfo(path + @"\tf\sourcebench.csv");
+            var results = new FileInfo(path + @"\tf\sourcebench.csv");
             if (!results.Exists)
             {
                 WorkerThread.ReportProgress(0, "Benchmark results file not found.");
                 return;
             }
 
-            using (TextFieldParser parser = new TextFieldParser(results.FullName))
+            using (var parser = new TextFieldParser(results.FullName))
             {
                 parser.TextFieldType = FieldType.Delimited;
                 parser.SetDelimiters(",");
@@ -589,7 +589,7 @@ namespace TF2_Benchmarker
                 parser.ReadFields();
                 while (parser.PeekChars(1) != null)
                 {
-                    ListViewItem li = new ListViewItem();
+                    var li = new ListViewItem();
 
                     string[] row = parser.ReadFields();
                     for (int i = 0; i < row.Length; i++)
@@ -613,13 +613,21 @@ namespace TF2_Benchmarker
                         lv_results.Items.Add(li);
                 }
             }
+
+            // Copy old csv back
+            var backupcsv = new FileInfo(path + @"\tf\sourcebench.csv.bak");
+            if (!backupcsv.Exists)
+            {
+                backupcsv.CopyTo(results.FullName, true);
+                backupcsv.Delete();
+            }
         }
 
         private void StartGame(string args, string path)
         {
             // run game, wait until it finishes
 
-            ProcessStartInfo TF2Proc = new ProcessStartInfo();
+            var TF2Proc = new ProcessStartInfo();
             TF2Proc.CreateNoWindow = true;
             TF2Proc.Arguments = args;
             TF2Proc.FileName = path + @"\hl2.exe";
@@ -632,12 +640,12 @@ namespace TF2_Benchmarker
 
         private void PrepDirectory(string path)
         {
-            // Clean up csv
+            // Back up existing csv
 
-            FileInfo benchcsv = new FileInfo(path + @"\tf\sourcebench.csv");
+            var benchcsv = new FileInfo(path + @"\tf\sourcebench.csv");
             if (benchcsv.Exists)
             {
-                benchcsv.CopyTo("sourcebench.csv.bak", true);
+                benchcsv.CopyTo(benchcsv.Directory + @"\sourcebench.csv.bak", true);
                 benchcsv.Delete();
             }
 
@@ -655,7 +663,7 @@ namespace TF2_Benchmarker
 
         private void WriteCfg(List<Cvar> config, string path, bool format = true)
         {
-            using (StreamWriter file = new StreamWriter(path + @"\tf\custom\tfbench\cfg\autoexec.cfg", false))
+            using (var file = new StreamWriter(path + @"\tf\custom\tfbench\cfg\autoexec.cfg", false))
             {
                 foreach (Cvar c in config)
                     if (format)
