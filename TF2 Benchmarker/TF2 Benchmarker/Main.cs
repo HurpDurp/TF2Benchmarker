@@ -13,7 +13,7 @@ namespace TF2_Benchmarker
     {
         string TFPath;
         
-        #region Forms
+        #region Setup / Teardown
 
         public Benchmarker()
         {
@@ -83,6 +83,9 @@ namespace TF2_Benchmarker
             if (!WorkerThread.IsBusy && TFPath.Length > 0)
             {
                 btn_start.Text = "&Stop";
+                cb_runtwice.Enabled = false;
+                txt_demoname.Enabled = false;
+                btn_tfpath.Enabled = false;
 
                 // Get FPS config commands
                 var FPSConfig = new List<Cvar>();
@@ -104,7 +107,7 @@ namespace TF2_Benchmarker
                 }
 
                 Object[] Args = new Object[] { FPSConfig, BenchmarkCvars };
-
+                
                 WorkerThread.RunWorkerAsync(Args);
             }
             else
@@ -121,7 +124,7 @@ namespace TF2_Benchmarker
         private void btn_tfpath_Click(object sender, EventArgs e)
         {
             var TFFolderDialog = new FolderBrowserDialog();
-            TFFolderDialog.Description = "Select Team Fortress 2 Directory";
+            TFFolderDialog.Description = "Select the \"Team Fortress 2\" Directory.";
             
             if (TFFolderDialog.ShowDialog() == DialogResult.OK)
             {
@@ -479,12 +482,13 @@ namespace TF2_Benchmarker
             if (rb_defaultconfig.Checked)
             {
                 // Use default config
-                args = "-steam -game tf " + txt_launchoptions.Text + GetDxLevel() + " -default +timedemoquit " + txt_demoname.Text;
+                args = "-steam -game tf -default -timedemo_comment \"Baseline\" " + txt_launchoptions.Text 
+                        + GetDxLevel() + GetRunCount() + " +timedemoquit " + txt_demoname.Text;
 
                 FPSConfig.Add(new Cvar("host_writeconfig", "\"config\" full"));
 
                 WriteCfg(FPSConfig, TFPath, false);
-                StartBenchmark(args, TFPath, "Baseline");
+                StartBenchmark(args, TFPath);
 
                 rb_dxnone.Checked = true;
                 FPSConfig.Clear();
@@ -492,13 +496,14 @@ namespace TF2_Benchmarker
             else
             {
                 // Use fps config instead of defaults
-                args = "-steam -game tf " + txt_launchoptions.Text + GetDxLevel() + " +timedemoquit " + txt_demoname.Text;
+                args = "-steam -game tf -timedemo_comment \"Baseline\" " + txt_launchoptions.Text 
+                        + GetDxLevel() + GetRunCount() + " +timedemoquit " + txt_demoname.Text;
 
                 var DefaultConfig = new List<Cvar>(FPSConfig);
                 DefaultConfig.Add(new Cvar("host_writeconfig", "\"config\" full"));
 
                 WriteCfg(DefaultConfig, TFPath);
-                StartBenchmark(args, TFPath, "Baseline");
+                StartBenchmark(args, TFPath);
             }
 
             // Set our newly generated config.cfg it to read only, so we don't overwrite it while benchmarking
@@ -511,8 +516,7 @@ namespace TF2_Benchmarker
             // Main benchmark loop
 
             List<Cvar> AutoexecConfig;
-            args = "-steam -game tf " + txt_launchoptions.Text + " +timedemoquit " + txt_demoname.Text;
-
+            
             foreach (var item in BenchCvars)
             {
                 if (WorkerThread.CancellationPending)
@@ -528,7 +532,10 @@ namespace TF2_Benchmarker
                 PrepDirectory(TFPath);
                 WriteCfg(AutoexecConfig, TFPath);
 
-                StartBenchmark(args, TFPath, PrintCvar(item));
+                args = "-steam -game tf -timedemo_comment \"" + PrintCvar(item) + "\" " 
+                        + txt_launchoptions.Text + GetRunCount() + " +timedemoquit " + txt_demoname.Text;
+
+                StartBenchmark(args, TFPath);
 
                 WorkerThread.ReportProgress(0, "Done.");
             }
@@ -560,13 +567,16 @@ namespace TF2_Benchmarker
         private void WorkerThread_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
         {
             btn_start.Text = "&Start";
+            cb_runtwice.Enabled = true;
+            txt_demoname.Enabled = true;
+            btn_tfpath.Enabled = true;
         }
 
         #endregion
 
         #region Benchmark Functions
 
-        private void StartBenchmark(string args, string path, string comment)
+        private void StartBenchmark(string args, string path)
         {
             StartGame(args, path);
 
@@ -591,16 +601,18 @@ namespace TF2_Benchmarker
                 {
                     var li = new ListViewItem();
 
+                    if (cb_runtwice.Checked)
+                        if (parser.LineNumber % 2 == 0)
+                            continue;
+
                     string[] row = parser.ReadFields();
                     for (int i = 0; i < row.Length; i++)
                     {
                         if (i == 0)
                             li.Text = row[i];
-                        else if (i == 1 || i == 2)
+                        else if (i == 1 || i == 2 || i == 23)
                             li.SubItems.Add(row[i]);
                     }
-
-                    li.SubItems.Add(comment);
 
                     if (lv_results.InvokeRequired)
                     {
@@ -616,7 +628,7 @@ namespace TF2_Benchmarker
 
             // Copy old csv back
             var backupcsv = new FileInfo(path + @"\tf\sourcebench.csv.bak");
-            if (!backupcsv.Exists)
+            if (backupcsv.Exists)
             {
                 backupcsv.CopyTo(results.FullName, true);
                 backupcsv.Delete();
@@ -656,7 +668,7 @@ namespace TF2_Benchmarker
 
             // Remove old autoexec
 
-            FileInfo autoexec = new FileInfo(cfgpath + @"\autoexec.cfg");
+            var autoexec = new FileInfo(cfgpath + @"\autoexec.cfg");
             if (autoexec.Exists)
                 autoexec.Delete();
         }
@@ -756,6 +768,14 @@ namespace TF2_Benchmarker
                 return c.Command + " " + c.Value;
             else
                 return c.Command;
+        }
+
+        private string GetRunCount()
+        {
+            if (cb_runtwice.Checked)
+                return " +timedemo_runcount 2";
+            else
+                return "";
         }
 
         #endregion
