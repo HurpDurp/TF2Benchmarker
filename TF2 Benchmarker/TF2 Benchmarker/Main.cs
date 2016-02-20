@@ -422,7 +422,7 @@ namespace TF2_Benchmarker
         {
             BeginInvoke((Action)delegate
             {
-                txt_configaddname.SelectAll();
+                txt_configaddvalue.SelectAll();
             });
         }
 
@@ -430,7 +430,7 @@ namespace TF2_Benchmarker
         {
             BeginInvoke((Action)delegate
             {
-                txt_configaddname.SelectAll();
+                txt_benchcommand.SelectAll();
             });
         }
 
@@ -438,7 +438,7 @@ namespace TF2_Benchmarker
         {
             BeginInvoke((Action)delegate
             {
-                txt_configaddname.SelectAll();
+                txt_benchmarkval.SelectAll();
             });
         }
 
