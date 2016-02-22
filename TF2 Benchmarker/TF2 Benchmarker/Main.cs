@@ -336,7 +336,7 @@ namespace TF2_Benchmarker
 
         private void btn_save_Click(object sender, EventArgs e)
         {
-            IniFile ConfigFile = new IniFile(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\TFBenchmark.ini");
+            var ConfigFile = new IniFile(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\TFBenchmark.ini");
             
             if (TFPath.Length > 0)
                 ConfigFile.IniWriteValue("General", "TFPath", TFPath);
@@ -378,9 +378,16 @@ namespace TF2_Benchmarker
                     ResultFile.AppendLine();
                 }
 
-                File.WriteAllText(SaveDialog.FileName, ResultFile.ToString());
+                try
+                {
+                    File.WriteAllText(SaveDialog.FileName, ResultFile.ToString());
 
-                Log("Results exported.");
+                    Log("Results exported.");
+                }
+                catch (Exception ex)
+                {
+                    Log("Could not export results: " + ex.Message);
+                }
             }
         }
 
