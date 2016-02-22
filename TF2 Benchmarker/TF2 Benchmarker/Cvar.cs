@@ -24,5 +24,13 @@ namespace TF2_Benchmarker
             Value = null;
             MultiLineCommand = new List<Cvar>(m);
         }
+
+        public string Print()
+        {
+            if (Value != null)
+                return Command + " " + Value;
+            else
+                return Command;
+        }
     }
 }

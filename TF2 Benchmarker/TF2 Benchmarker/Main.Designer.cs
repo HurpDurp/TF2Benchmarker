@@ -414,6 +414,7 @@
             this.lv_benchmarkcvars.Size = new System.Drawing.Size(577, 526);
             this.lv_benchmarkcvars.TabIndex = 27;
             this.lv_benchmarkcvars.UseCompatibleStateImageBehavior = false;
+            this.lv_benchmarkcvars.ItemChecked += new System.Windows.Forms.ItemCheckedEventHandler(this.lv_benchmarkcvars_ItemChecked);
             // 
             // tp_fpsconfig
             // 

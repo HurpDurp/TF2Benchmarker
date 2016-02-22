@@ -112,7 +112,7 @@ namespace TF2_Benchmarker
                 }
 
                 Object[] Args = new Object[] { FPSConfig, BenchmarkCvars };
-                
+
                 WorkerThread.RunWorkerAsync(Args);
             }
             else
@@ -128,7 +128,35 @@ namespace TF2_Benchmarker
 
         private void btn_runbaseline_Click(object sender, EventArgs e)
         {
+            if (!WorkerThread.IsBusy && TFPath.Length > 0)
+            {
+                RunBaseline = true;
 
+                btn_start.Text = "&Stop";
+                cb_runtwice.Enabled = false;
+                txt_demoname.Enabled = false;
+                btn_runbaseline.Enabled = false;
+                btn_tfpath.Enabled = false;
+
+                // Get FPS config commands
+                var FPSConfig = new List<Cvar>();
+                foreach (ListViewItem item in lv_commands.Items)
+                {
+                    if (item.Checked)
+                        FPSConfig.Add(new Cvar(item.Text, item.SubItems[1].Text));
+                }
+
+                // Leave this empty for just the baseline
+                var BenchmarkCvars = new List<Cvar>();
+
+                Object[] Args = new Object[] { FPSConfig, BenchmarkCvars };
+
+                WorkerThread.RunWorkerAsync(Args);
+            }
+            else
+            {
+                Log("TF2 path not set, aborting.");
+            }
         }
 
         private void btn_tfpath_Click(object sender, EventArgs e)
@@ -161,12 +189,14 @@ namespace TF2_Benchmarker
 
             if (ConfigDialog.ShowDialog() == DialogResult.OK)
             {
+                RunBaseline = true;
+
                 var FPSConfig = new List<string>();
 
                 // Read FPS config
                 string noComments;
 
-                using (StreamReader sr = new StreamReader(ConfigDialog.FileName))
+                using (var sr = new StreamReader(ConfigDialog.FileName))
                 {
                     while (sr.Peek() != -1)
                     {
@@ -207,6 +237,8 @@ namespace TF2_Benchmarker
             if (txt_configaddname.Text != "Command" && txt_configaddvalue.Text != "Value"
                 && txt_configaddname.Text.Length > 0 && txt_configaddvalue.Text.Length > 0)
             {
+                RunBaseline = true;
+
                 ListViewItem item = new ListViewItem(txt_configaddname.Text);
                 item.SubItems.Add(txt_configaddvalue.Text);
                 item.Checked = true;
@@ -508,6 +540,11 @@ namespace TF2_Benchmarker
             });
         }
 
+        private void lv_benchmarkcvars_ItemChecked(object sender, ItemCheckedEventArgs e)
+        {
+            RunBaseline = true;
+        }
+
         #endregion
 
         #region Worker Thread
@@ -523,10 +560,6 @@ namespace TF2_Benchmarker
             WorkerThread.ReportProgress(0, "Starting...");
             PrepDirectory(TFPath);
 
-            // Generate a baseline benchmark
-
-            WorkerThread.ReportProgress(0, "Generating baseline benchmark...");
-            
             string args;
             Object[] WorkerArgs = e.Argument as Object[];
             List<Cvar> FPSConfig = WorkerArgs[0] as List<Cvar>;
@@ -540,43 +573,51 @@ namespace TF2_Benchmarker
                 config.CopyTo(TFPath + @"\tf\cfg\config.cfg.bak", true);
                 config.Delete();
             }
-            
-            // Generate a fresh config.cfg with the first run of the benchmark, and set directX level if we need to
-            if (rb_defaultconfig.Checked)
+
+            if (RunBaseline)
             {
-                // Use default config
-                args = "-steam -game tf -default -timedemo_comment \"Baseline\" " + txt_launchoptions.Text 
-                        + GetDxLevel() + " +timedemoquit " + txt_demoname.Text;
+                // Generate a baseline benchmark
+                WorkerThread.ReportProgress(0, "Generating baseline benchmark...");
+                
+                // Generate a fresh config.cfg with the first run of the benchmark, and set directX level if we need to
+                if (rb_defaultconfig.Checked)
+                {
+                    // Use default config
+                    args = "-steam -game tf -default -timedemo_comment \"Baseline\" " + txt_launchoptions.Text
+                            + GetDxLevel() + " +timedemoquit " + txt_demoname.Text;
 
-                // We cannot specify the timedemo_runcount when using -default. See issue #5.
+                    // We cannot specify the timedemo_runcount when using -default. See issue #5.
 
-                FPSConfig.Add(new Cvar("host_writeconfig", "\"config\" full"));
+                    FPSConfig.Add(new Cvar("host_writeconfig", "\"config\" full"));
 
-                WriteCfg(FPSConfig, TFPath, false);
-                StartBenchmark(args, TFPath);
+                    WriteCfg(FPSConfig, TFPath, false);
+                    StartBenchmark(args, TFPath);
 
-                rb_dxnone.Checked = true;
-                FPSConfig.Clear();
+                    rb_dxnone.Checked = true;
+                    FPSConfig.Clear();
+                }
+                else
+                {
+                    // Use fps config instead of defaults
+                    args = "-steam -game tf -timedemo_comment \"Baseline\" " + txt_launchoptions.Text
+                            + GetDxLevel() + GetRunCount() + " +timedemoquit " + txt_demoname.Text;
+
+                    var DefaultConfig = new List<Cvar>(FPSConfig);
+                    DefaultConfig.Add(new Cvar("host_writeconfig", "\"config\" full"));
+
+                    WriteCfg(DefaultConfig, TFPath);
+                    StartBenchmark(args, TFPath);
+                }
+
+                // Set our newly generated config.cfg it to read only, so we don't overwrite it while benchmarking
+                config.Refresh();
+                if (config.Exists)
+                    config.IsReadOnly = true;
+
+                WorkerThread.ReportProgress(0, "Done.");
+
+                RunBaseline = false;
             }
-            else
-            {
-                // Use fps config instead of defaults
-                args = "-steam -game tf -timedemo_comment \"Baseline\" " + txt_launchoptions.Text 
-                        + GetDxLevel() + GetRunCount() + " +timedemoquit " + txt_demoname.Text;
-
-                var DefaultConfig = new List<Cvar>(FPSConfig);
-                DefaultConfig.Add(new Cvar("host_writeconfig", "\"config\" full"));
-
-                WriteCfg(DefaultConfig, TFPath);
-                StartBenchmark(args, TFPath);
-            }
-
-            // Set our newly generated config.cfg it to read only, so we don't overwrite it while benchmarking
-            config.Refresh();
-            if (config.Exists)
-                config.IsReadOnly = true;
-
-            WorkerThread.ReportProgress(0, "Done.");
 
             // Main benchmark loop
 
@@ -590,14 +631,14 @@ namespace TF2_Benchmarker
                     break;
                 }
 
-                WorkerThread.ReportProgress(0, "Benchmarking " + PrintCvar(item) + "...");
+                WorkerThread.ReportProgress(0, "Benchmarking " + item.Print() + "...");
 
                 AutoexecConfig = MergeConfig(FPSConfig, item);
 
                 PrepDirectory(TFPath);
                 WriteCfg(AutoexecConfig, TFPath);
 
-                args = "-steam -game tf -timedemo_comment \"" + PrintCvar(item) + "\" " 
+                args = "-steam -game tf -timedemo_comment \"" + item.Print() + "\" " 
                         + txt_launchoptions.Text + GetRunCount() + " +timedemoquit " + txt_demoname.Text;
 
                 StartBenchmark(args, TFPath);
@@ -754,7 +795,7 @@ namespace TF2_Benchmarker
                     if (format)
                         file.WriteLine(String.Format("{0} \"{1}\"", c.Command, c.Value));
                     else
-                        file.WriteLine(PrintCvar(c));
+                        file.WriteLine(c.Print());
             }
         }
 
@@ -833,14 +874,6 @@ namespace TF2_Benchmarker
                 ret = " -dxlevel 98";
 
             return ret;
-        }
-
-        private string PrintCvar(Cvar c)
-        {
-            if (c.Value != null)
-                return c.Command + " " + c.Value;
-            else
-                return c.Command;
         }
 
         private string GetRunCount()
