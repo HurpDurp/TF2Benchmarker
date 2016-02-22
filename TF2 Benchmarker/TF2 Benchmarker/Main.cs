@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
@@ -483,7 +484,9 @@ namespace TF2_Benchmarker
             {
                 // Use default config
                 args = "-steam -game tf -default -timedemo_comment \"Baseline\" " + txt_launchoptions.Text 
-                        + GetDxLevel() + GetRunCount() + " +timedemoquit " + txt_demoname.Text;
+                        + GetDxLevel() + " +timedemoquit " + txt_demoname.Text;
+
+                // We cannot specify the timedemo_runcount when using -default. See issue #5.
 
                 FPSConfig.Add(new Cvar("host_writeconfig", "\"config\" full"));
 
@@ -596,14 +599,21 @@ namespace TF2_Benchmarker
                 parser.HasFieldsEnclosedInQuotes = false;
                 parser.TrimWhiteSpace = true;
 
-                parser.ReadFields();
+                int lineCount = File.ReadLines(results.FullName).Count();
+
+                // Skip the first line
+                parser.ReadLine();
+
                 while (parser.PeekChars(1) != null)
                 {
                     var li = new ListViewItem();
 
-                    if (cb_runtwice.Checked)
-                        if (parser.LineNumber % 2 == 0)
-                            continue;
+                    // Skip the first run if the run twice option is selected
+                    if (cb_runtwice.Checked && lineCount > 2 && parser.LineNumber % 2 == 0)
+                    {
+                        parser.ReadLine();
+                        continue;
+                    }
 
                     string[] row = parser.ReadFields();
                     for (int i = 0; i < row.Length; i++)
@@ -625,7 +635,7 @@ namespace TF2_Benchmarker
                         lv_results.Items.Add(li);
                 }
             }
-
+            
             // Copy old csv back
             var backupcsv = new FileInfo(path + @"\tf\sourcebench.csv.bak");
             if (backupcsv.Exists)
