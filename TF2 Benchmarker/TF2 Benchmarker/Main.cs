@@ -13,8 +13,10 @@ namespace TF2_Benchmarker
 {
     public partial class Benchmarker : Form
     {
+        const string version = "v1.5";
+
         string TFPath;
-        bool RunBaseline;
+        volatile bool RunBaseline;
         
         #region Setup / Teardown
 
@@ -24,6 +26,9 @@ namespace TF2_Benchmarker
 
             TFPath = "";
             RunBaseline = true;
+
+            // Set version in title
+            this.Text += version;
 
             // Radio buttons
             rb_dxnone.Checked = true;
@@ -53,8 +58,6 @@ namespace TF2_Benchmarker
             // BackgroundWorker
             WorkerThread.WorkerSupportsCancellation = true;
             WorkerThread.WorkerReportsProgress = true;
-
-            Log("Started");
 
             InitializeConfig();
         }
@@ -86,11 +89,7 @@ namespace TF2_Benchmarker
         {
             if (!WorkerThread.IsBusy && TFPath.Length > 0)
             {
-                btn_start.Text = "&Stop";
-                cb_runtwice.Enabled = false;
-                txt_demoname.Enabled = false;
-                btn_runbaseline.Enabled = false;
-                btn_tfpath.Enabled = false;
+                SetUIEnabledState(false);
 
                 // Get FPS config commands
                 var FPSConfig = new List<Cvar>();
@@ -132,11 +131,7 @@ namespace TF2_Benchmarker
             {
                 RunBaseline = true;
 
-                btn_start.Text = "&Stop";
-                cb_runtwice.Enabled = false;
-                txt_demoname.Enabled = false;
-                btn_runbaseline.Enabled = false;
-                btn_tfpath.Enabled = false;
+                SetUIEnabledState(false);
 
                 // Get FPS config commands
                 var FPSConfig = new List<Cvar>();
@@ -173,10 +168,10 @@ namespace TF2_Benchmarker
                     TFPath = TFFolderDialog.SelectedPath;
                     lbl_tf2path.Text = TFFolderDialog.SelectedPath;
 
-                    Log("TF2 path set");
+                    Log("TF2 path set.");
                 }
                 else
-                    MessageBox.Show("Invalid directory, could not locate hl2.exe");
+                    MessageBox.Show("Invalid directory, could not locate hl2.exe.");
             }
         }
 
@@ -189,8 +184,6 @@ namespace TF2_Benchmarker
 
             if (ConfigDialog.ShowDialog() == DialogResult.OK)
             {
-                RunBaseline = true;
-
                 var FPSConfig = new List<string>();
 
                 // Read FPS config
@@ -456,6 +449,12 @@ namespace TF2_Benchmarker
             btn_clearfps.Enabled = false;
             
             lv_commands.Items.Clear();
+
+            var rb = sender as RadioButton;
+
+            if (rb != null)
+                if (rb.Checked)
+                    RunBaseline = true;
         }
 
         private void rb_customconfig_CheckedChanged(object sender, EventArgs e)
@@ -466,31 +465,57 @@ namespace TF2_Benchmarker
             txt_configaddvalue.Enabled = true;
             btn_configadditem.Enabled = true;
             btn_clearfps.Enabled = true;
+
+            var rb = sender as RadioButton;
+
+            if (rb != null)
+                if (rb.Checked)
+                    RunBaseline = true;
         }
 
         private void rb_dx8_CheckedChanged(object sender, EventArgs e)
         {
-            RunBaseline = true;
+            var rb = sender as RadioButton;
+
+            if (rb != null)
+                if (rb.Checked)
+                    RunBaseline = true;
         }
 
         private void rb_dx81_CheckedChanged(object sender, EventArgs e)
         {
-            RunBaseline = true;
+            var rb = sender as RadioButton;
+
+            if (rb != null)
+                if (rb.Checked)
+                    RunBaseline = true;
         }
 
         private void rb_dx90_CheckedChanged(object sender, EventArgs e)
         {
-            RunBaseline = true;
+            var rb = sender as RadioButton;
+
+            if (rb != null)
+                if (rb.Checked)
+                    RunBaseline = true;
         }
 
         private void rb_dx95_CheckedChanged(object sender, EventArgs e)
         {
-            RunBaseline = true;
+            var rb = sender as RadioButton;
+
+            if (rb != null)
+                if (rb.Checked)
+                    RunBaseline = true;
         }
 
         private void rb_dx98_CheckedChanged(object sender, EventArgs e)
         {
-            RunBaseline = true;
+            var rb = sender as RadioButton;
+
+            if (rb != null)
+                if (rb.Checked)
+                    RunBaseline = true;
         }
 
         #endregion
@@ -567,7 +592,17 @@ namespace TF2_Benchmarker
             });
         }
 
-        private void lv_benchmarkcvars_ItemChecked(object sender, ItemCheckedEventArgs e)
+        private void txt_launchoptions_TextChanged(object sender, EventArgs e)
+        {
+            RunBaseline = true;
+        }
+
+        private void txt_demoname_TextChanged(object sender, EventArgs e)
+        {
+            RunBaseline = true;
+        }
+
+        private void lv_commands_ItemCheck(object sender, ItemCheckEventArgs e)
         {
             RunBaseline = true;
         }
@@ -641,8 +676,6 @@ namespace TF2_Benchmarker
                 if (config.Exists)
                     config.IsReadOnly = true;
 
-                WorkerThread.ReportProgress(0, "Done.");
-
                 RunBaseline = false;
             }
 
@@ -669,8 +702,6 @@ namespace TF2_Benchmarker
                         + txt_launchoptions.Text + GetRunCount() + " +timedemoquit " + txt_demoname.Text;
 
                 StartBenchmark(args, TFPath);
-
-                WorkerThread.ReportProgress(0, "Done.");
             }
 
             // Clean up, delete our generated config
@@ -699,11 +730,7 @@ namespace TF2_Benchmarker
 
         private void WorkerThread_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
         {
-            btn_start.Text = "&Start";
-            cb_runtwice.Enabled = true;
-            txt_demoname.Enabled = true;
-            btn_runbaseline.Enabled = true;
-            btn_tfpath.Enabled = true;
+            SetUIEnabledState(true);
         }
 
         #endregion
@@ -882,7 +909,7 @@ namespace TF2_Benchmarker
 
         private void Log(string message)
         {
-            lb_log.Items.Add(String.Format("[{0}] {1}", DateTime.Now, message));
+            lb_log.Items.Add(String.Format("[{0}] {1}", DateTime.Now.ToString("h:mm:ss tt"), message));
             lb_log.TopIndex = lb_log.Items.Count - 1; // Scroll to bottom
         }
 
@@ -909,6 +936,39 @@ namespace TF2_Benchmarker
                 return " +timedemo_runcount 2";
             else
                 return "";
+        }
+
+        private void SetUIEnabledState(bool Enabled)
+        {
+            if (Enabled)
+                btn_start.Text = "&Start";
+            else
+                btn_start.Text = "&Stop";
+            
+            btn_runbaseline.Enabled = Enabled;
+            btn_tfpath.Enabled = Enabled;
+
+            rb_dx8.Enabled = Enabled;
+            rb_dx81.Enabled = Enabled;
+            rb_dx90.Enabled = Enabled;
+            rb_dx95.Enabled = Enabled;
+            rb_dx98.Enabled = Enabled;
+            rb_dxnone.Enabled = Enabled;
+
+            txt_launchoptions.Enabled = Enabled;
+            
+            rb_customconfig.Enabled = Enabled;
+            rb_defaultconfig.Enabled = Enabled;
+            
+            if (rb_defaultconfig.Checked)
+            {
+                txt_configaddname.Enabled = Enabled;
+                txt_configaddvalue.Enabled = Enabled;
+                btn_configadditem.Enabled = Enabled;
+            }
+
+            cb_runtwice.Enabled = Enabled;
+            txt_demoname.Enabled = Enabled;
         }
 
         #endregion
