@@ -1,4 +1,4 @@
-# TF2Benchmarker
+# TF2 Bench
 An Automated Team Fortress 2 Benchmarker
 
 ![Main View](Screenshots/Main.png "")
