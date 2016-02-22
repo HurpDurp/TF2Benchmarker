@@ -55,16 +55,29 @@ Working examples can be found in the `Benchmark Examples` folder.
 
 Every time you start a benchmark, the program will perform the following steps:
 
-1. Back up any existing `cfg/config.cfg` and `sourcebench.csv` files.
-2. A clean config.cfg will be generated, based on the following:
-  * If the `Default` option is selected, the game will be started with the `-default` parameter.
-  * If the `Custom Config` option is selected, checked commands from the `FPS Config` list will be written to `/tf/custom/tfbench/cfg/autoexec.cfg`
-3. The game is started, the DirectX level is set (if needed) and a benchmark is run with the clean configuration.
-4. For each command in the list, an `autoexec.cfg` will be generated with that command combined with the FPS config (if used).
+1. Any existing `cfg/config.cfg` and `sourcebench.csv` files are backed up.
+2. The game is started, the DirectX level is set (if needed) and a benchmark is run with the clean configuration.
+  * If the `Default` option is selected, the game is started with the following parameters:
+  ```
+  [DirectX Level] -default -timedemo_comment "Baseline" [Custom Launch Options] +timedemoquit [Demo Name] 
+  ```
+  * If the `Custom Config` option is selected, the following parameters are used:
+  ```
+  [DirectX Level] -timedemo_comment "Baseline" [Custom Launch Options] +timedemo_runcount [1/2] +timedemoquit [Demo Name]
+  ```
+  Additionally the FPS config is copied to `tf/custom/tfbench/cfg/autoexec.cfg`.
+3. A clean config.cfg is written using the command `host_writeconfig`.
+4. The game exits.
+5. For every command in the `Benchmark` list, an `autoexec.cfg` will be created with that command combined with the FPS config (if used).
   * Conflicts between existing commands and the benchmark values will be automatically resolved.
-5. Each command is benchmarked, with a restart between each command.
-6. Results are parsed from the `sourcebench.csv` file, and displayed in the results tab.
-7. Backed up files are restored, and temporary files are removed.
+6. The game is started.
+  * If the `Run Twice` box is checked, the benchmark will be run twice per command, with the first result discarded to ensure    consistency.
+  * The following launch options are used:
+  ```
+  -timedemo_comment [Command Name] [Custom Launch Options] +timedemo_runcount [1/2] +timedemoquit [Demo Name] 
+  ```
+7. Results are parsed from the `sourcebench.csv` file, and displayed in the results tab.
+8. Once finished, backed up files are restored, and temporary files are removed.
 
 ### Pitfalls
 
@@ -72,8 +85,4 @@ When benchmarking, it is important to note that there are a number of factors th
 
 * Ensure that you close out all applications that could interfere with the benchmark. These include internet browsers, VoIP applications, etc.
 * Under normal conditions benchmarking can result in variations of ±2-3 fps between identical runs. Keep this in mind while evaluating results.
-* Keeping `-dxlevel` in the launch options can negatively affect performance, and cause crashes. Remember to remove it once you've set your DirectX level to the desired value.
-
-### Known Issues
-
-There seems to be a noticeable performance improvement between the first and subsequent benchmarks when the game is not restarted in between. This might be due to caching speeding things up, or it could be the result of the steam cloud or other external factors overwriting settings. In any case, it needs more investigation.
+* Keeping `-dxlevel` in the launch options can negatively affect performance, and cause crashes. Remember to remove it once you've set your DirectX level to the desired value. Do **not** manually set the directx level when using TFBench, instead use the DirectX version selector.
