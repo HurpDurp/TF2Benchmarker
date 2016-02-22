@@ -89,7 +89,7 @@
             // txt_launchoptions
             // 
             this.txt_launchoptions.Location = new System.Drawing.Point(12, 144);
-            this.txt_launchoptions.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txt_launchoptions.Margin = new System.Windows.Forms.Padding(4);
             this.txt_launchoptions.Name = "txt_launchoptions";
             this.txt_launchoptions.Size = new System.Drawing.Size(553, 22);
             this.txt_launchoptions.TabIndex = 10;
@@ -97,11 +97,12 @@
             // btn_start
             // 
             this.btn_start.Location = new System.Drawing.Point(16, 15);
-            this.btn_start.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btn_start.Margin = new System.Windows.Forms.Padding(4);
             this.btn_start.Name = "btn_start";
             this.btn_start.Size = new System.Drawing.Size(100, 28);
             this.btn_start.TabIndex = 0;
             this.btn_start.Text = "&Start";
+            this.toolTip.SetToolTip(this.btn_start, "Start the benchmark and run a baseline if needed.");
             this.btn_start.UseVisualStyleBackColor = true;
             this.btn_start.Click += new System.EventHandler(this.btn_start_Click);
             // 
@@ -119,9 +120,9 @@
             this.gb_gameoptions.Controls.Add(this.lbl_launchoptions);
             this.gb_gameoptions.Controls.Add(this.txt_launchoptions);
             this.gb_gameoptions.Location = new System.Drawing.Point(16, 50);
-            this.gb_gameoptions.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.gb_gameoptions.Margin = new System.Windows.Forms.Padding(4);
             this.gb_gameoptions.Name = "gb_gameoptions";
-            this.gb_gameoptions.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.gb_gameoptions.Padding = new System.Windows.Forms.Padding(4);
             this.gb_gameoptions.Size = new System.Drawing.Size(575, 181);
             this.gb_gameoptions.TabIndex = 3;
             this.gb_gameoptions.TabStop = false;
@@ -131,7 +132,7 @@
             // 
             this.rb_dxnone.AutoSize = true;
             this.rb_dxnone.Location = new System.Drawing.Point(415, 89);
-            this.rb_dxnone.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.rb_dxnone.Margin = new System.Windows.Forms.Padding(4);
             this.rb_dxnone.Name = "rb_dxnone";
             this.rb_dxnone.Size = new System.Drawing.Size(102, 21);
             this.rb_dxnone.TabIndex = 9;
@@ -153,61 +154,66 @@
             // 
             this.rb_dx98.AutoSize = true;
             this.rb_dx98.Location = new System.Drawing.Point(329, 89);
-            this.rb_dx98.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.rb_dx98.Margin = new System.Windows.Forms.Padding(4);
             this.rb_dx98.Name = "rb_dx98";
             this.rb_dx98.Size = new System.Drawing.Size(72, 21);
             this.rb_dx98.TabIndex = 8;
             this.rb_dx98.TabStop = true;
             this.rb_dx98.Text = "DX 9.8";
             this.rb_dx98.UseVisualStyleBackColor = true;
+            this.rb_dx98.CheckedChanged += new System.EventHandler(this.rb_dx98_CheckedChanged);
             // 
             // rb_dx95
             // 
             this.rb_dx95.AutoSize = true;
             this.rb_dx95.Location = new System.Drawing.Point(244, 89);
-            this.rb_dx95.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.rb_dx95.Margin = new System.Windows.Forms.Padding(4);
             this.rb_dx95.Name = "rb_dx95";
             this.rb_dx95.Size = new System.Drawing.Size(72, 21);
             this.rb_dx95.TabIndex = 7;
             this.rb_dx95.TabStop = true;
             this.rb_dx95.Text = "DX 9.5";
             this.rb_dx95.UseVisualStyleBackColor = true;
+            this.rb_dx95.CheckedChanged += new System.EventHandler(this.rb_dx95_CheckedChanged);
             // 
             // rb_dx90
             // 
             this.rb_dx90.AutoSize = true;
             this.rb_dx90.Location = new System.Drawing.Point(171, 89);
-            this.rb_dx90.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.rb_dx90.Margin = new System.Windows.Forms.Padding(4);
             this.rb_dx90.Name = "rb_dx90";
             this.rb_dx90.Size = new System.Drawing.Size(60, 21);
             this.rb_dx90.TabIndex = 6;
             this.rb_dx90.TabStop = true;
             this.rb_dx90.Text = "DX 9";
             this.rb_dx90.UseVisualStyleBackColor = true;
+            this.rb_dx90.CheckedChanged += new System.EventHandler(this.rb_dx90_CheckedChanged);
             // 
             // rb_dx81
             // 
             this.rb_dx81.AutoSize = true;
             this.rb_dx81.Location = new System.Drawing.Point(85, 89);
-            this.rb_dx81.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.rb_dx81.Margin = new System.Windows.Forms.Padding(4);
             this.rb_dx81.Name = "rb_dx81";
             this.rb_dx81.Size = new System.Drawing.Size(72, 21);
             this.rb_dx81.TabIndex = 5;
             this.rb_dx81.TabStop = true;
             this.rb_dx81.Text = "DX 8.1";
             this.rb_dx81.UseVisualStyleBackColor = true;
+            this.rb_dx81.CheckedChanged += new System.EventHandler(this.rb_dx81_CheckedChanged);
             // 
             // rb_dx8
             // 
             this.rb_dx8.AutoSize = true;
             this.rb_dx8.Location = new System.Drawing.Point(12, 89);
-            this.rb_dx8.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.rb_dx8.Margin = new System.Windows.Forms.Padding(4);
             this.rb_dx8.Name = "rb_dx8";
             this.rb_dx8.Size = new System.Drawing.Size(60, 21);
             this.rb_dx8.TabIndex = 4;
             this.rb_dx8.TabStop = true;
             this.rb_dx8.Text = "DX 8";
             this.rb_dx8.UseVisualStyleBackColor = true;
+            this.rb_dx8.CheckedChanged += new System.EventHandler(this.rb_dx8_CheckedChanged);
             // 
             // lbl_tf2path
             // 
@@ -223,11 +229,12 @@
             // btn_tfpath
             // 
             this.btn_tfpath.Location = new System.Drawing.Point(12, 23);
-            this.btn_tfpath.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btn_tfpath.Margin = new System.Windows.Forms.Padding(4);
             this.btn_tfpath.Name = "btn_tfpath";
             this.btn_tfpath.Size = new System.Drawing.Size(100, 28);
             this.btn_tfpath.TabIndex = 3;
             this.btn_tfpath.Text = "TF2 &Path";
+            this.toolTip.SetToolTip(this.btn_tfpath, "Set the path to the Team Fortress 2 folder.");
             this.btn_tfpath.UseVisualStyleBackColor = true;
             this.btn_tfpath.Click += new System.EventHandler(this.btn_tfpath_Click);
             // 
@@ -244,7 +251,7 @@
             // lv_commands
             // 
             this.lv_commands.Location = new System.Drawing.Point(-1, -1);
-            this.lv_commands.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.lv_commands.Margin = new System.Windows.Forms.Padding(4);
             this.lv_commands.Name = "lv_commands";
             this.lv_commands.Size = new System.Drawing.Size(577, 526);
             this.lv_commands.TabIndex = 27;
@@ -261,9 +268,9 @@
             this.gb_config.Controls.Add(this.rb_defaultconfig);
             this.gb_config.Controls.Add(this.btn_loadconfig);
             this.gb_config.Location = new System.Drawing.Point(16, 239);
-            this.gb_config.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.gb_config.Margin = new System.Windows.Forms.Padding(4);
             this.gb_config.Name = "gb_config";
-            this.gb_config.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.gb_config.Padding = new System.Windows.Forms.Padding(4);
             this.gb_config.Size = new System.Drawing.Size(575, 142);
             this.gb_config.TabIndex = 4;
             this.gb_config.TabStop = false;
@@ -272,18 +279,19 @@
             // btn_clearfps
             // 
             this.btn_clearfps.Location = new System.Drawing.Point(257, 48);
-            this.btn_clearfps.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btn_clearfps.Margin = new System.Windows.Forms.Padding(4);
             this.btn_clearfps.Name = "btn_clearfps";
             this.btn_clearfps.Size = new System.Drawing.Size(100, 28);
             this.btn_clearfps.TabIndex = 14;
             this.btn_clearfps.Text = "Clear";
+            this.toolTip.SetToolTip(this.btn_clearfps, "Clear out the current FPS config.");
             this.btn_clearfps.UseVisualStyleBackColor = true;
             this.btn_clearfps.Click += new System.EventHandler(this.btn_clearfps_Click);
             // 
             // txt_configaddvalue
             // 
             this.txt_configaddvalue.Location = new System.Drawing.Point(371, 107);
-            this.txt_configaddvalue.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txt_configaddvalue.Margin = new System.Windows.Forms.Padding(4);
             this.txt_configaddvalue.Name = "txt_configaddvalue";
             this.txt_configaddvalue.Size = new System.Drawing.Size(85, 22);
             this.txt_configaddvalue.TabIndex = 16;
@@ -294,7 +302,7 @@
             // btn_configadditem
             // 
             this.btn_configadditem.Location = new System.Drawing.Point(465, 105);
-            this.btn_configadditem.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btn_configadditem.Margin = new System.Windows.Forms.Padding(4);
             this.btn_configadditem.Name = "btn_configadditem";
             this.btn_configadditem.Size = new System.Drawing.Size(100, 28);
             this.btn_configadditem.TabIndex = 17;
@@ -315,7 +323,7 @@
             // txt_configaddname
             // 
             this.txt_configaddname.Location = new System.Drawing.Point(12, 107);
-            this.txt_configaddname.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txt_configaddname.Margin = new System.Windows.Forms.Padding(4);
             this.txt_configaddname.Name = "txt_configaddname";
             this.txt_configaddname.Size = new System.Drawing.Size(349, 22);
             this.txt_configaddname.TabIndex = 15;
@@ -327,7 +335,7 @@
             // 
             this.rb_customconfig.AutoSize = true;
             this.rb_customconfig.Location = new System.Drawing.Point(12, 52);
-            this.rb_customconfig.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.rb_customconfig.Margin = new System.Windows.Forms.Padding(4);
             this.rb_customconfig.Name = "rb_customconfig";
             this.rb_customconfig.Size = new System.Drawing.Size(120, 21);
             this.rb_customconfig.TabIndex = 12;
@@ -340,7 +348,7 @@
             // 
             this.rb_defaultconfig.AutoSize = true;
             this.rb_defaultconfig.Location = new System.Drawing.Point(12, 23);
-            this.rb_defaultconfig.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.rb_defaultconfig.Margin = new System.Windows.Forms.Padding(4);
             this.rb_defaultconfig.Name = "rb_defaultconfig";
             this.rb_defaultconfig.Size = new System.Drawing.Size(74, 21);
             this.rb_defaultconfig.TabIndex = 11;
@@ -352,11 +360,12 @@
             // btn_loadconfig
             // 
             this.btn_loadconfig.Location = new System.Drawing.Point(144, 48);
-            this.btn_loadconfig.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btn_loadconfig.Margin = new System.Windows.Forms.Padding(4);
             this.btn_loadconfig.Name = "btn_loadconfig";
             this.btn_loadconfig.Size = new System.Drawing.Size(105, 28);
             this.btn_loadconfig.TabIndex = 13;
             this.btn_loadconfig.Text = "Load";
+            this.toolTip.SetToolTip(this.btn_loadconfig, "Load a FPS config to run with the benchmark.");
             this.btn_loadconfig.UseVisualStyleBackColor = true;
             this.btn_loadconfig.Click += new System.EventHandler(this.btn_loadconfig_Click);
             // 
@@ -367,7 +376,7 @@
             this.tabControl.Controls.Add(this.tp_fpsconfig);
             this.tabControl.Controls.Add(this.tp_results);
             this.tabControl.Location = new System.Drawing.Point(599, 15);
-            this.tabControl.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tabControl.Margin = new System.Windows.Forms.Padding(4);
             this.tabControl.Name = "tabControl";
             this.tabControl.SelectedIndex = 0;
             this.tabControl.Size = new System.Drawing.Size(583, 553);
@@ -377,7 +386,7 @@
             // 
             this.tp_log.Controls.Add(this.lb_log);
             this.tp_log.Location = new System.Drawing.Point(4, 25);
-            this.tp_log.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tp_log.Margin = new System.Windows.Forms.Padding(4);
             this.tp_log.Name = "tp_log";
             this.tp_log.Size = new System.Drawing.Size(575, 524);
             this.tp_log.TabIndex = 2;
@@ -389,7 +398,7 @@
             this.lb_log.FormattingEnabled = true;
             this.lb_log.ItemHeight = 16;
             this.lb_log.Location = new System.Drawing.Point(0, 2);
-            this.lb_log.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.lb_log.Margin = new System.Windows.Forms.Padding(4);
             this.lb_log.Name = "lb_log";
             this.lb_log.Size = new System.Drawing.Size(568, 516);
             this.lb_log.TabIndex = 27;
@@ -398,9 +407,9 @@
             // 
             this.tp_benchmarkcvars.Controls.Add(this.lv_benchmarkcvars);
             this.tp_benchmarkcvars.Location = new System.Drawing.Point(4, 25);
-            this.tp_benchmarkcvars.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tp_benchmarkcvars.Margin = new System.Windows.Forms.Padding(4);
             this.tp_benchmarkcvars.Name = "tp_benchmarkcvars";
-            this.tp_benchmarkcvars.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tp_benchmarkcvars.Padding = new System.Windows.Forms.Padding(4);
             this.tp_benchmarkcvars.Size = new System.Drawing.Size(575, 524);
             this.tp_benchmarkcvars.TabIndex = 1;
             this.tp_benchmarkcvars.Text = "Benchmark List";
@@ -409,7 +418,7 @@
             // lv_benchmarkcvars
             // 
             this.lv_benchmarkcvars.Location = new System.Drawing.Point(-1, -1);
-            this.lv_benchmarkcvars.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.lv_benchmarkcvars.Margin = new System.Windows.Forms.Padding(4);
             this.lv_benchmarkcvars.Name = "lv_benchmarkcvars";
             this.lv_benchmarkcvars.Size = new System.Drawing.Size(577, 526);
             this.lv_benchmarkcvars.TabIndex = 27;
@@ -420,9 +429,9 @@
             // 
             this.tp_fpsconfig.Controls.Add(this.lv_commands);
             this.tp_fpsconfig.Location = new System.Drawing.Point(4, 25);
-            this.tp_fpsconfig.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tp_fpsconfig.Margin = new System.Windows.Forms.Padding(4);
             this.tp_fpsconfig.Name = "tp_fpsconfig";
-            this.tp_fpsconfig.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tp_fpsconfig.Padding = new System.Windows.Forms.Padding(4);
             this.tp_fpsconfig.Size = new System.Drawing.Size(575, 524);
             this.tp_fpsconfig.TabIndex = 0;
             this.tp_fpsconfig.Text = "FPS Config";
@@ -444,29 +453,31 @@
             // btn_clearresults
             // 
             this.btn_clearresults.Location = new System.Drawing.Point(112, 489);
-            this.btn_clearresults.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btn_clearresults.Margin = new System.Windows.Forms.Padding(4);
             this.btn_clearresults.Name = "btn_clearresults";
             this.btn_clearresults.Size = new System.Drawing.Size(100, 28);
             this.btn_clearresults.TabIndex = 29;
             this.btn_clearresults.Text = "Clear";
+            this.toolTip.SetToolTip(this.btn_clearresults, "Clear the results list.");
             this.btn_clearresults.UseVisualStyleBackColor = true;
             this.btn_clearresults.Click += new System.EventHandler(this.btn_clearresults_Click);
             // 
             // btn_exportresults
             // 
             this.btn_exportresults.Location = new System.Drawing.Point(4, 489);
-            this.btn_exportresults.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btn_exportresults.Margin = new System.Windows.Forms.Padding(4);
             this.btn_exportresults.Name = "btn_exportresults";
             this.btn_exportresults.Size = new System.Drawing.Size(100, 28);
             this.btn_exportresults.TabIndex = 28;
             this.btn_exportresults.Text = "Export";
+            this.toolTip.SetToolTip(this.btn_exportresults, "Export the current results list.");
             this.btn_exportresults.UseVisualStyleBackColor = true;
             this.btn_exportresults.Click += new System.EventHandler(this.btn_exportresults_Click);
             // 
             // lv_results
             // 
             this.lv_results.Location = new System.Drawing.Point(-1, -1);
-            this.lv_results.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.lv_results.Margin = new System.Windows.Forms.Padding(4);
             this.lv_results.Name = "lv_results";
             this.lv_results.Size = new System.Drawing.Size(577, 485);
             this.lv_results.TabIndex = 27;
@@ -484,9 +495,9 @@
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Controls.Add(this.txt_benchcommand);
             this.groupBox1.Location = new System.Drawing.Point(16, 388);
-            this.groupBox1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.groupBox1.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.groupBox1.Padding = new System.Windows.Forms.Padding(4);
             this.groupBox1.Size = new System.Drawing.Size(575, 180);
             this.groupBox1.TabIndex = 16;
             this.groupBox1.TabStop = false;
@@ -498,7 +509,7 @@
             this.cb_runtwice.Checked = true;
             this.cb_runtwice.CheckState = System.Windows.Forms.CheckState.Checked;
             this.cb_runtwice.Location = new System.Drawing.Point(233, 28);
-            this.cb_runtwice.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.cb_runtwice.Margin = new System.Windows.Forms.Padding(4);
             this.cb_runtwice.Name = "cb_runtwice";
             this.cb_runtwice.Size = new System.Drawing.Size(96, 21);
             this.cb_runtwice.TabIndex = 20;
@@ -510,11 +521,12 @@
             // btn_clearbench
             // 
             this.btn_clearbench.Location = new System.Drawing.Point(125, 23);
-            this.btn_clearbench.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btn_clearbench.Margin = new System.Windows.Forms.Padding(4);
             this.btn_clearbench.Name = "btn_clearbench";
             this.btn_clearbench.Size = new System.Drawing.Size(100, 28);
             this.btn_clearbench.TabIndex = 19;
             this.btn_clearbench.Text = "Clear";
+            this.toolTip.SetToolTip(this.btn_clearbench, "Clear the list of commands to benchmark.");
             this.btn_clearbench.UseVisualStyleBackColor = true;
             this.btn_clearbench.Click += new System.EventHandler(this.btn_clearbench_Click);
             // 
@@ -531,7 +543,7 @@
             // txt_demoname
             // 
             this.txt_demoname.Location = new System.Drawing.Point(12, 142);
-            this.txt_demoname.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txt_demoname.Margin = new System.Windows.Forms.Padding(4);
             this.txt_demoname.Name = "txt_demoname";
             this.txt_demoname.Size = new System.Drawing.Size(552, 22);
             this.txt_demoname.TabIndex = 24;
@@ -539,7 +551,7 @@
             // txt_benchmarkval
             // 
             this.txt_benchmarkval.Location = new System.Drawing.Point(371, 81);
-            this.txt_benchmarkval.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txt_benchmarkval.Margin = new System.Windows.Forms.Padding(4);
             this.txt_benchmarkval.Name = "txt_benchmarkval";
             this.txt_benchmarkval.Size = new System.Drawing.Size(85, 22);
             this.txt_benchmarkval.TabIndex = 22;
@@ -550,7 +562,7 @@
             // btn_benchadditem
             // 
             this.btn_benchadditem.Location = new System.Drawing.Point(465, 79);
-            this.btn_benchadditem.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btn_benchadditem.Margin = new System.Windows.Forms.Padding(4);
             this.btn_benchadditem.Name = "btn_benchadditem";
             this.btn_benchadditem.Size = new System.Drawing.Size(100, 28);
             this.btn_benchadditem.TabIndex = 23;
@@ -561,7 +573,7 @@
             // btn_loadbenchconfig
             // 
             this.btn_loadbenchconfig.Location = new System.Drawing.Point(12, 23);
-            this.btn_loadbenchconfig.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btn_loadbenchconfig.Margin = new System.Windows.Forms.Padding(4);
             this.btn_loadbenchconfig.Name = "btn_loadbenchconfig";
             this.btn_loadbenchconfig.Size = new System.Drawing.Size(105, 28);
             this.btn_loadbenchconfig.TabIndex = 18;
@@ -583,7 +595,7 @@
             // txt_benchcommand
             // 
             this.txt_benchcommand.Location = new System.Drawing.Point(12, 81);
-            this.txt_benchcommand.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txt_benchcommand.Margin = new System.Windows.Forms.Padding(4);
             this.txt_benchcommand.Name = "txt_benchcommand";
             this.txt_benchcommand.Size = new System.Drawing.Size(349, 22);
             this.txt_benchcommand.TabIndex = 21;
@@ -594,7 +606,7 @@
             // btn_save
             // 
             this.btn_save.Location = new System.Drawing.Point(232, 15);
-            this.btn_save.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btn_save.Margin = new System.Windows.Forms.Padding(4);
             this.btn_save.Name = "btn_save";
             this.btn_save.Size = new System.Drawing.Size(109, 28);
             this.btn_save.TabIndex = 2;
@@ -617,6 +629,7 @@
             this.btn_runbaseline.Size = new System.Drawing.Size(100, 28);
             this.btn_runbaseline.TabIndex = 1;
             this.btn_runbaseline.Text = "Run &Baseline";
+            this.toolTip.SetToolTip(this.btn_runbaseline, "Only run a baseline benchmark, without any commands.");
             this.btn_runbaseline.UseVisualStyleBackColor = true;
             this.btn_runbaseline.Click += new System.EventHandler(this.btn_runbaseline_Click);
             // 
@@ -633,7 +646,7 @@
             this.Controls.Add(this.gb_gameoptions);
             this.Controls.Add(this.btn_start);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.MaximizeBox = false;
             this.Name = "Benchmarker";
             this.Text = "TF2 Bench";

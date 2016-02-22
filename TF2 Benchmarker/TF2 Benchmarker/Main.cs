@@ -372,6 +372,8 @@ namespace TF2_Benchmarker
         private void btn_clearfps_Click(object sender, EventArgs e)
         {
             lv_commands.Items.Clear();
+
+            RunBaseline = true;
         }
 
         private void btn_save_Click(object sender, EventArgs e)
@@ -464,6 +466,31 @@ namespace TF2_Benchmarker
             txt_configaddvalue.Enabled = true;
             btn_configadditem.Enabled = true;
             btn_clearfps.Enabled = true;
+        }
+
+        private void rb_dx8_CheckedChanged(object sender, EventArgs e)
+        {
+            RunBaseline = true;
+        }
+
+        private void rb_dx81_CheckedChanged(object sender, EventArgs e)
+        {
+            RunBaseline = true;
+        }
+
+        private void rb_dx90_CheckedChanged(object sender, EventArgs e)
+        {
+            RunBaseline = true;
+        }
+
+        private void rb_dx95_CheckedChanged(object sender, EventArgs e)
+        {
+            RunBaseline = true;
+        }
+
+        private void rb_dx98_CheckedChanged(object sender, EventArgs e)
+        {
+            RunBaseline = true;
         }
 
         #endregion
