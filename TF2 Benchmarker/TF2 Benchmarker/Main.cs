@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
@@ -344,6 +345,52 @@ namespace TF2_Benchmarker
             ConfigFile.IniWriteValue("General", "DemoName", txt_demoname.Text);
 
             Log("Settings saved.");
+        }
+
+        private void btn_exportresults_Click(object sender, EventArgs e)
+        {
+            var SaveDialog = new SaveFileDialog();
+
+            SaveDialog.FileName = "Results.csv";
+            SaveDialog.Filter = "Comma separated values file (*.csv)|*.csv";
+            SaveDialog.OverwritePrompt = true;
+
+            if (SaveDialog.ShowDialog() == DialogResult.OK)
+            {
+                // Header
+                var ResultFile = new StringBuilder();
+
+                foreach (ColumnHeader item in lv_results.Columns)
+                {
+                    ResultFile.Append(item.Text + ",");
+                }
+                ResultFile.AppendLine();
+
+                // Data rows
+                foreach (ListViewItem item in lv_results.Items)
+                {
+                    for (int i = 0; i < item.SubItems.Count; i++)
+                    {
+                        ResultFile.Append(item.SubItems[i].Text);
+                        ResultFile.Append(",");
+                    }
+
+                    ResultFile.AppendLine();
+                }
+
+                File.WriteAllText(SaveDialog.FileName, ResultFile.ToString());
+
+                Log("Results exported.");
+            }
+        }
+
+        private void btn_clearresults_Click(object sender, EventArgs e)
+        {
+            var ConfirmResult = MessageBox.Show("Clear Results List?", "Confirm Action", MessageBoxButtons.YesNo);
+            if (ConfirmResult == DialogResult.Yes)
+            {
+                lv_results.Items.Clear();
+            }
         }
 
         #endregion

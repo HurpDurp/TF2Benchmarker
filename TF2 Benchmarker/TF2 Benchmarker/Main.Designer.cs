@@ -61,6 +61,7 @@
             this.tp_results = new System.Windows.Forms.TabPage();
             this.lv_results = new System.Windows.Forms.ListView();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.cb_runtwice = new System.Windows.Forms.CheckBox();
             this.btn_clearbench = new System.Windows.Forms.Button();
             this.lbl_demoname = new System.Windows.Forms.Label();
             this.txt_demoname = new System.Windows.Forms.TextBox();
@@ -71,8 +72,9 @@
             this.txt_benchcommand = new System.Windows.Forms.TextBox();
             this.btn_save = new System.Windows.Forms.Button();
             this.WorkerThread = new System.ComponentModel.BackgroundWorker();
-            this.cb_runtwice = new System.Windows.Forms.CheckBox();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.btn_exportresults = new System.Windows.Forms.Button();
+            this.btn_clearresults = new System.Windows.Forms.Button();
             this.gb_gameoptions.SuspendLayout();
             this.gb_config.SuspendLayout();
             this.tabControl.SuspendLayout();
@@ -367,7 +369,7 @@
             this.tp_benchmarkcvars.Controls.Add(this.lv_benchmarkcvars);
             this.tp_benchmarkcvars.Location = new System.Drawing.Point(4, 22);
             this.tp_benchmarkcvars.Name = "tp_benchmarkcvars";
-            this.tp_benchmarkcvars.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
+            this.tp_benchmarkcvars.Padding = new System.Windows.Forms.Padding(3);
             this.tp_benchmarkcvars.Size = new System.Drawing.Size(429, 423);
             this.tp_benchmarkcvars.TabIndex = 1;
             this.tp_benchmarkcvars.Text = "Benchmark List";
@@ -386,7 +388,7 @@
             this.tp_fpsconfig.Controls.Add(this.lv_commands);
             this.tp_fpsconfig.Location = new System.Drawing.Point(4, 22);
             this.tp_fpsconfig.Name = "tp_fpsconfig";
-            this.tp_fpsconfig.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
+            this.tp_fpsconfig.Padding = new System.Windows.Forms.Padding(3);
             this.tp_fpsconfig.Size = new System.Drawing.Size(429, 423);
             this.tp_fpsconfig.TabIndex = 0;
             this.tp_fpsconfig.Text = "FPS Config";
@@ -394,9 +396,11 @@
             // 
             // tp_results
             // 
+            this.tp_results.Controls.Add(this.btn_clearresults);
+            this.tp_results.Controls.Add(this.btn_exportresults);
             this.tp_results.Controls.Add(this.lv_results);
             this.tp_results.Location = new System.Drawing.Point(4, 22);
-            this.tp_results.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tp_results.Margin = new System.Windows.Forms.Padding(2);
             this.tp_results.Name = "tp_results";
             this.tp_results.Size = new System.Drawing.Size(429, 423);
             this.tp_results.TabIndex = 3;
@@ -407,7 +411,7 @@
             // 
             this.lv_results.Location = new System.Drawing.Point(-1, -1);
             this.lv_results.Name = "lv_results";
-            this.lv_results.Size = new System.Drawing.Size(434, 428);
+            this.lv_results.Size = new System.Drawing.Size(434, 395);
             this.lv_results.TabIndex = 6;
             this.lv_results.UseCompatibleStateImageBehavior = false;
             // 
@@ -428,6 +432,20 @@
             this.groupBox1.TabIndex = 16;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Benchmark";
+            // 
+            // cb_runtwice
+            // 
+            this.cb_runtwice.AutoSize = true;
+            this.cb_runtwice.Checked = true;
+            this.cb_runtwice.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.cb_runtwice.Location = new System.Drawing.Point(175, 23);
+            this.cb_runtwice.Name = "cb_runtwice";
+            this.cb_runtwice.Size = new System.Drawing.Size(78, 17);
+            this.cb_runtwice.TabIndex = 16;
+            this.cb_runtwice.Text = "Run Twice";
+            this.toolTip.SetToolTip(this.cb_runtwice, "Run the benchmark twice per command, and discard the first result for consistency" +
+        ". Recommended to leave this on.");
+            this.cb_runtwice.UseVisualStyleBackColor = true;
             // 
             // btn_clearbench
             // 
@@ -522,19 +540,25 @@
             this.WorkerThread.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.WorkerThread_ProgressChanged);
             this.WorkerThread.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.WorkerThread_RunWorkerCompleted);
             // 
-            // cb_runtwice
+            // btn_exportresults
             // 
-            this.cb_runtwice.AutoSize = true;
-            this.cb_runtwice.Checked = true;
-            this.cb_runtwice.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.cb_runtwice.Location = new System.Drawing.Point(175, 23);
-            this.cb_runtwice.Name = "cb_runtwice";
-            this.cb_runtwice.Size = new System.Drawing.Size(78, 17);
-            this.cb_runtwice.TabIndex = 16;
-            this.cb_runtwice.Text = "Run Twice";
-            this.toolTip.SetToolTip(this.cb_runtwice, "Run the benchmark twice per command, and discard the first run to ensure consiste" +
-        "nt results.");
-            this.cb_runtwice.UseVisualStyleBackColor = true;
+            this.btn_exportresults.Location = new System.Drawing.Point(3, 397);
+            this.btn_exportresults.Name = "btn_exportresults";
+            this.btn_exportresults.Size = new System.Drawing.Size(75, 23);
+            this.btn_exportresults.TabIndex = 7;
+            this.btn_exportresults.Text = "Export";
+            this.btn_exportresults.UseVisualStyleBackColor = true;
+            this.btn_exportresults.Click += new System.EventHandler(this.btn_exportresults_Click);
+            // 
+            // btn_clearresults
+            // 
+            this.btn_clearresults.Location = new System.Drawing.Point(84, 397);
+            this.btn_clearresults.Name = "btn_clearresults";
+            this.btn_clearresults.Size = new System.Drawing.Size(75, 23);
+            this.btn_clearresults.TabIndex = 8;
+            this.btn_clearresults.Text = "Clear";
+            this.btn_clearresults.UseVisualStyleBackColor = true;
+            this.btn_clearresults.Click += new System.EventHandler(this.btn_clearresults_Click);
             // 
             // Benchmarker
             // 
@@ -612,6 +636,8 @@
         private System.ComponentModel.BackgroundWorker WorkerThread;
         private System.Windows.Forms.CheckBox cb_runtwice;
         private System.Windows.Forms.ToolTip toolTip;
+        private System.Windows.Forms.Button btn_exportresults;
+        private System.Windows.Forms.Button btn_clearresults;
     }
 }
 
