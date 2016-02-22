@@ -14,6 +14,7 @@ namespace TF2_Benchmarker
     public partial class Benchmarker : Form
     {
         string TFPath;
+        bool RunBaseline;
         
         #region Setup / Teardown
 
@@ -22,6 +23,7 @@ namespace TF2_Benchmarker
             InitializeComponent();
 
             TFPath = "";
+            RunBaseline = true;
 
             // Radio buttons
             rb_dxnone.Checked = true;
@@ -87,6 +89,7 @@ namespace TF2_Benchmarker
                 btn_start.Text = "&Stop";
                 cb_runtwice.Enabled = false;
                 txt_demoname.Enabled = false;
+                btn_runbaseline.Enabled = false;
                 btn_tfpath.Enabled = false;
 
                 // Get FPS config commands
@@ -121,6 +124,11 @@ namespace TF2_Benchmarker
                 
                 WorkerThread.CancelAsync();
             }
+        }
+
+        private void btn_runbaseline_Click(object sender, EventArgs e)
+        {
+
         }
 
         private void btn_tfpath_Click(object sender, EventArgs e)
@@ -224,7 +232,7 @@ namespace TF2_Benchmarker
                 // Read Bench config
                 string noComments;
 
-                using (StreamReader sr = new StreamReader(ConfigDialog.FileName))
+                using (var sr = new StreamReader(ConfigDialog.FileName))
                 {
                     while (sr.Peek() != -1)
                     {
@@ -626,6 +634,7 @@ namespace TF2_Benchmarker
             btn_start.Text = "&Start";
             cb_runtwice.Enabled = true;
             txt_demoname.Enabled = true;
+            btn_runbaseline.Enabled = true;
             btn_tfpath.Enabled = true;
         }
 

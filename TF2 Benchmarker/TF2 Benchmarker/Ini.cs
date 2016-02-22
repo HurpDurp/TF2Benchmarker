@@ -30,7 +30,6 @@ namespace TF2_Benchmarker
             StringBuilder temp = new StringBuilder(255);
             int i = GetPrivateProfileString(Section, Key, "", temp, 255, this.path);
             return temp.ToString();
-
         }
     }
 }
