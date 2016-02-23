@@ -448,6 +448,7 @@
             this.lv_results.Size = new System.Drawing.Size(434, 395);
             this.lv_results.TabIndex = 27;
             this.lv_results.UseCompatibleStateImageBehavior = false;
+            this.lv_results.ColumnWidthChanging += new System.Windows.Forms.ColumnWidthChangingEventHandler(this.lv_results_ColumnWidthChanging);
             // 
             // groupBox1
             // 

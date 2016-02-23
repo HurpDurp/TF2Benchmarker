@@ -50,6 +50,9 @@ namespace TF2_Benchmarker
             lv_results.Columns.Add("Demo File", 150);
             lv_results.Columns.Add("FPS");
             lv_results.Columns.Add("Variability", 75);
+            lv_results.Columns.Add("totaltime", 0);
+            lv_results.Columns.Add("numframes", 0);
+            lv_results.Columns.Add("cmdline", 0);
             lv_results.Columns.Add("Comment", -2);
 
             // Hotkey
@@ -452,9 +455,8 @@ namespace TF2_Benchmarker
 
             var rb = sender as RadioButton;
 
-            if (rb != null)
-                if (rb.Checked)
-                    RunBaseline = true;
+            if (rb != null && rb.Checked)
+                RunBaseline = true;
         }
 
         private void rb_customconfig_CheckedChanged(object sender, EventArgs e)
@@ -468,60 +470,55 @@ namespace TF2_Benchmarker
 
             var rb = sender as RadioButton;
 
-            if (rb != null)
-                if (rb.Checked)
-                    RunBaseline = true;
+            if (rb != null && rb.Checked)
+                RunBaseline = true;
         }
 
         private void rb_dx8_CheckedChanged(object sender, EventArgs e)
         {
             var rb = sender as RadioButton;
 
-            if (rb != null)
-                if (rb.Checked)
-                    RunBaseline = true;
+            if (rb != null && rb.Checked)
+                RunBaseline = true;
         }
 
         private void rb_dx81_CheckedChanged(object sender, EventArgs e)
         {
             var rb = sender as RadioButton;
 
-            if (rb != null)
-                if (rb.Checked)
-                    RunBaseline = true;
+            if (rb != null && rb.Checked)
+                RunBaseline = true;
         }
 
         private void rb_dx90_CheckedChanged(object sender, EventArgs e)
         {
             var rb = sender as RadioButton;
 
-            if (rb != null)
-                if (rb.Checked)
-                    RunBaseline = true;
+            if (rb != null && rb.Checked)
+                RunBaseline = true;
         }
 
         private void rb_dx95_CheckedChanged(object sender, EventArgs e)
         {
             var rb = sender as RadioButton;
 
-            if (rb != null)
-                if (rb.Checked)
-                    RunBaseline = true;
+            if (rb != null && rb.Checked)
+                RunBaseline = true;
         }
 
         private void rb_dx98_CheckedChanged(object sender, EventArgs e)
         {
             var rb = sender as RadioButton;
 
-            if (rb != null)
-                if (rb.Checked)
-                    RunBaseline = true;
+            if (rb != null && rb.Checked)
+                RunBaseline = true;
         }
 
         #endregion
 
         #region UI
 
+        // Go over to the right when a user presses enter in the "add command" sections.
         private void txt_configaddname_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
@@ -560,6 +557,7 @@ namespace TF2_Benchmarker
             }
         }
 
+        // Highlight text in the "add command" sections when a user clicks on it.
         private void txt_configaddname_Enter(object sender, EventArgs e)
         {
             BeginInvoke((Action)delegate
@@ -592,6 +590,7 @@ namespace TF2_Benchmarker
             });
         }
 
+        // Set the proper RunBaseline state when a user changes settings
         private void txt_launchoptions_TextChanged(object sender, EventArgs e)
         {
             RunBaseline = true;
@@ -605,6 +604,17 @@ namespace TF2_Benchmarker
         private void lv_commands_ItemCheck(object sender, ItemCheckEventArgs e)
         {
             RunBaseline = true;
+        }
+
+        // Hide some columns that aren't particularly useful from the results
+        private void lv_results_ColumnWidthChanging(object sender, ColumnWidthChangingEventArgs e)
+        {
+            int i = e.ColumnIndex;
+            if (i >= 3 && i <= 5)
+            {
+                e.Cancel = true;
+                e.NewWidth = 0;
+            }
         }
 
         #endregion
@@ -776,10 +786,15 @@ namespace TF2_Benchmarker
                     string[] row = parser.ReadFields();
                     for (int i = 0; i < row.Length; i++)
                     {
-                        if (i == 0)
-                            li.Text = row[i];
-                        else if (i == 1 || i == 2 || i == 23)
-                            li.SubItems.Add(row[i]);
+                        switch(i)
+                        {
+                            case 0:
+                                li.Text = row[i];
+                                break;
+                            case 1: case 2: case 3: case 4: case 12: case 23:
+                                li.SubItems.Add(row[i]);
+                                break;
+                        }
                     }
 
                     if (lv_results.InvokeRequired)
