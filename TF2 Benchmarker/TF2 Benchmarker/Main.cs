@@ -69,7 +69,7 @@ namespace TF2_Benchmarker
         {
             // Remove temporary directory
             
-            if (TFPath.Length > 0)
+            if (IsValidTFPath(TFPath))
             {
                 string path = TFPath + @"\tf\custom\tfbench";
                 try
@@ -90,7 +90,13 @@ namespace TF2_Benchmarker
 
         private void btn_start_Click(object sender, EventArgs e)
         {
-            if (!WorkerThread.IsBusy && TFPath.Length > 0)
+            if (IsValidTFPath(TFPath))
+            {
+                Log("TF2 path not set, aborting.");
+                return;
+            }
+
+            if (!WorkerThread.IsBusy)
             {
                 SetUIEnabledState(false);
 
@@ -119,18 +125,20 @@ namespace TF2_Benchmarker
             }
             else
             {
-                if (WorkerThread.IsBusy)
-                    Log("Stopping benchmark after this run.");
-                else
-                    Log("TF2 path not set, aborting.");
-                
+                Log("Stopping benchmark after this run.");    
                 WorkerThread.CancelAsync();
             }
         }
 
         private void btn_runbaseline_Click(object sender, EventArgs e)
         {
-            if (!WorkerThread.IsBusy && TFPath.Length > 0)
+            if (IsValidTFPath(TFPath))
+            {
+                Log("TF2 path not set, aborting.");
+                return;
+            }
+
+            if (!WorkerThread.IsBusy)
             {
                 RunBaseline = true;
 
@@ -151,10 +159,6 @@ namespace TF2_Benchmarker
 
                 WorkerThread.RunWorkerAsync(Args);
             }
-            else
-            {
-                Log("TF2 path not set, aborting.");
-            }
         }
 
         private void btn_tfpath_Click(object sender, EventArgs e)
@@ -164,9 +168,7 @@ namespace TF2_Benchmarker
             
             if (TFFolderDialog.ShowDialog() == DialogResult.OK)
             {
-                var hl2exe = new FileInfo(TFFolderDialog.SelectedPath + @"\hl2.exe");
-
-                if (hl2exe.Exists)
+                if (IsValidTFPath(TFFolderDialog.SelectedPath))
                 {
                     TFPath = TFFolderDialog.SelectedPath;
                     lbl_tf2path.Text = TFFolderDialog.SelectedPath;
@@ -338,7 +340,7 @@ namespace TF2_Benchmarker
                     }
                 }
 
-                Log("Benchmark config added");
+                Log("Benchmark config added.");
             }
         }
 
@@ -376,7 +378,7 @@ namespace TF2_Benchmarker
         {
             var ConfigFile = new IniFile(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\TFBenchmark.ini");
             
-            if (TFPath.Length > 0)
+            if (IsValidTFPath(TFPath))
                 ConfigFile.IniWriteValue("General", "TFPath", TFPath);
 
             ConfigFile.IniWriteValue("General", "LaunchOptions", txt_launchoptions.Text);
@@ -986,13 +988,23 @@ namespace TF2_Benchmarker
             txt_demoname.Enabled = Enabled;
         }
 
+        private bool IsValidTFPath(string path)
+        {
+            var hl2exe = new FileInfo(path + @"\hl2.exe");
+
+            if (hl2exe.Exists)
+                return true;
+
+            return false;
+        }
+
         #endregion
 
         #region Configuration File Handling
 
         private void InitializeConfig()
         {
-            IniFile ConfigFile = new IniFile(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\TFBenchmark.ini");
+            var ConfigFile = new IniFile(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\TFBenchmark.ini");
 
             if (!File.Exists(ConfigFile.path))
             {
@@ -1042,7 +1054,7 @@ namespace TF2_Benchmarker
 
             if (m.Msg == 0x0312 && WorkerThread.IsBusy)
             {
-                System.Media.SystemSounds.Hand.Play();
+                System.Media.SystemSounds.Asterisk.Play();
 
                 WorkerThread.CancelAsync();
                 Log("Stopping benchmark after this run.");
