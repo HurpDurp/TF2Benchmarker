@@ -106,7 +106,7 @@ namespace TF2_Benchmarker
             {
                 SetUIEnabledState(false);
 
-                // Get FPS config commands
+                // Read the FPS config commands.
                 var FPSConfig = new List<Cvar>();
                 foreach (ListViewItem item in lv_commands.Items)
                 {
@@ -114,7 +114,7 @@ namespace TF2_Benchmarker
                         FPSConfig.Add(new Cvar(item.Text, item.SubItems[1].Text));
                 }
 
-                // Get benchmark commands
+                // Read the benchmark commands.
                 var BenchmarkCvars = new List<Cvar>();
                 foreach (ListViewItem item in lv_benchmarkcvars.Items)
                 {
@@ -124,8 +124,7 @@ namespace TF2_Benchmarker
                         else
                             BenchmarkCvars.Add(new Cvar(item.Text, item.Tag as List<Cvar>));
                 }
-
-                // Form args to pass to the benchmark thread
+                
                 var Args = new Object[] { FPSConfig, BenchmarkCvars };
 
                 WorkerThread.RunWorkerAsync(Args);
@@ -151,7 +150,7 @@ namespace TF2_Benchmarker
 
                 SetUIEnabledState(false);
 
-                // Get FPS config commands
+                // Read the FPS config commands.
                 var FPSConfig = new List<Cvar>();
                 foreach (ListViewItem item in lv_commands.Items)
                 {
@@ -159,10 +158,9 @@ namespace TF2_Benchmarker
                         FPSConfig.Add(new Cvar(item.Text, item.SubItems[1].Text));
                 }
 
-                // Nothing to benchmark for the baseline
+                // Nothing to benchmark for the baseline, but pass the list anyway.
                 var BenchmarkCvars = new List<Cvar>();
-
-                // Form args to pass to the benchmark thread
+                
                 var Args = new Object[] { FPSConfig, BenchmarkCvars };
 
                 WorkerThread.RunWorkerAsync(Args);
@@ -199,7 +197,7 @@ namespace TF2_Benchmarker
             {
                 var FPSConfig = new List<string>();
 
-                // Read FPS config from file, store in a list
+                // Read the FPS config from file, and parse.
                 string noComments;
 
                 using (var sr = new StreamReader(ConfigDialog.FileName))
@@ -214,7 +212,7 @@ namespace TF2_Benchmarker
                     }
                 }
 
-                // Parse each string and add to the listview
+                // Add each command to the listview.
                 foreach (string s in FPSConfig)
                 {
                     try
@@ -263,13 +261,13 @@ namespace TF2_Benchmarker
             ConfigDialog.Title = "Open Benchmark Config";
             ConfigDialog.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
 
-            // Read the bench config
+            // Read the bench config from file.
             if (ConfigDialog.ShowDialog() == DialogResult.OK)
             {
                 var BenchConfig = new List<string>();
                 string noComments;
 
-                // Remove comments
+                // Remove any comments and doublequotes.
                 using (var sr = new StreamReader(ConfigDialog.FileName))
                 {
                     while (sr.Peek() != -1)
@@ -281,13 +279,12 @@ namespace TF2_Benchmarker
                             BenchConfig.Add(noComments);
                     }
                 }
-
-                // Parse the command list
+                
                 foreach (string s in BenchConfig)
                 {
                     if (!s.Contains("|"))
                     {
-                        // Parse the command normally
+                        // Parse the command normally.
                         string temp = s.Trim();
                         
                         try
@@ -322,14 +319,14 @@ namespace TF2_Benchmarker
 
                             if (i == 0)
                             {
-                                // First part of the multiline contains the name
+                                // First statement of a multiline contains the name.
                                 name = cmds[i].Trim();
                                 continue;
                             }
 
                             try
                             {
-                                // The other parts are the actual cvars themselves
+                                // The other parts are the actual cvars themselves.
                                 string command = cmds[i].Substring(0, cmds[i].IndexOf(" "));
                                 string val = cmds[i].Substring(cmds[i].IndexOf(" ") + 1);
 
@@ -340,8 +337,7 @@ namespace TF2_Benchmarker
                                 Log("Could not parse custom command: " + name);
                             }
                         }
-
-                        // Finally, add it to the listview if it parsed correctly.
+                        
                         if (MultiLineCmd.Count > 0)
                         {
                             var lv = new ListViewItem();
