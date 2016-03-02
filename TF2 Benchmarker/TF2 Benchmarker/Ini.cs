@@ -3,6 +3,10 @@ using System.Text;
 
 namespace TF2_Benchmarker
 {
+    /// <summary>
+    /// A class for saving and loading ini files.
+    /// Taken from http://www.codeproject.com/Articles/1966/An-INI-file-handling-class-using-C
+    /// </summary>
     public class IniFile
     {
         public string path;
@@ -10,6 +14,7 @@ namespace TF2_Benchmarker
         [DllImport("kernel32")]
         private static extern long WritePrivateProfileString(string section,
             string key, string val, string filePath);
+
         [DllImport("kernel32")]
         private static extern int GetPrivateProfileString(string section,
             string key, string def, StringBuilder retVal,
@@ -27,7 +32,7 @@ namespace TF2_Benchmarker
 
         public string IniReadValue(string Section, string Key)
         {
-            StringBuilder temp = new StringBuilder(255);
+            var temp = new StringBuilder(255);
             int i = GetPrivateProfileString(Section, Key, "", temp, 255, this.path);
             return temp.ToString();
         }

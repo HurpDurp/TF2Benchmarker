@@ -1,11 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace TF2_Benchmarker
 {
+    /// <summary>
+    /// Struct containing a name and value, for storing TF2 console cvars.
+    /// 
+    /// It may contain a list of other cvars inside of it, for use in multiline commands.
+    /// </summary>
     struct Cvar
     {
         public readonly string Command, Value;
