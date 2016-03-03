@@ -68,29 +68,27 @@ Every time you start a benchmark, the program will perform the following steps:
   ```
   [DirectX Level] -default -timedemo_comment "Baseline" [Custom Launch Options] +timedemoquit [Demo Name] 
   ```
-  * If the `Custom Config` option is selected, the following parameters are used:
-  ```
-  [DirectX Level] -timedemo_comment "Baseline" [Custom Launch Options] +timedemo_runcount [1/2] +timedemoquit [Demo Name]
-  ```
+  * If the `Custom Config` option is selected, the `default` parameter is removed and `+timedemo_runcount [1/2]` is added.
   * The command list is copied to `tf/custom/tfbench/cfg/autoexec.cfg`.
   * TF2 generates a clean `config.cfg` using the command `host_writeconfig`.
   * The game exits.
 3. The main benchmark session starts.
-  * For every command in the `Benchmark` list, an `autoexec.cfg` will be created with that command combined with the FPS config (if used).
-  * Conflicts between existing commands and the benchmark values will be automatically resolved.
-  * If the `Run Twice` box is checked, the benchmark will be run twice per command, with the first result discarded to ensure    consistency.
-  * The following launch options are used:
+  * For every command in the `Benchmark` list, an `autoexec.cfg` will be created with the command and the FPS config (if used).
+  * Conflicts between the command and the FPS config will be automatically resolved.
+  * If the `Run Twice` box is checked, the `timedemo_runcount` will be set to `2`, and the first `timedemo` result will discarded to ensure    consistency. Is is recommended that you use this option.
+  * The game is started with the following launch options:
   ```
   -timedemo_comment [Command Name] [Custom Launch Options] +timedemo_runcount [1/2] +timedemoquit [Demo Name] 
   ```
+  * The game exits, and starts up again to benchmark the next command.
 4. Results are parsed from the `sourcebench.csv` file, and displayed in the results tab.
 5. Once finished, backed up files are restored, and temporary files are removed.
 
 ### Pitfalls
 
-When benchmarking, it is important to note that there are a number of factors that can skew results.
+When benchmarking, it is important to note that there are a number of factors that can impact results.
 
 * Ensure that you close out all applications that could interfere with the benchmark. These include internet browsers, VoIP applications, etc.
-* Under normal conditions benchmarking can result in variations of ±2-3 fps between identical runs. Keep this in mind while evaluating results.
+* Under normal conditions benchmarking can result in variations of ±2-3 fps between identical runs.
 * Keeping `-dxlevel` in the launch options can negatively affect performance, and cause crashes. Remember to remove it once you've set your DirectX level to the desired value. Do **not** manually set the directx level when using TFBench, instead use the DirectX version selector.
-* The benchmark cannot run twice in once session when using the `-default` launch parameter (#5), thus baseline results when using the `Default` option may be inaccurate.
+* The benchmark cannot run twice in once session when using the `-default` launch parameter ([#5](/../../issues/5)), thus baseline results when using the `Default` option may be inaccurate.
