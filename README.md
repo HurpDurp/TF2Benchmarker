@@ -27,7 +27,7 @@ To begin, you need:
 
 `Shift + F10` will stop a benchmark while it is running. TF2 will not immediately close, instead it will just finish the current command and stop. You should hear a sound after pressing it.
 
-`Alt + S` will start and stop the benchmark.
+`Alt + S` will start and stop the benchmark. The TF2 Bench window must be in focus, unlike the command above.
 
 `Alt + B` will run a baseline benchmark.
 
@@ -35,30 +35,32 @@ To begin, you need:
 
 ### FPS File Format
 
-Any file with the extension `.cfg` can be imported to use as a 'base' to benchmark against.
-
-Comments `//` should be automatically ignored, as well as mixed use of `" "`s.
+Any standard FPS config can be loaded and used alongside of a benchmark.
 
 ### Benchmark File Format
 
-To quickly add commands to benchmark, you can place your commands in a `.txt` file.
-Each line will be parsed for a command, and benchmarked separately.
+To quickly add commands to benchmark, you can place them in a `.txt` file, with a command on each line.
+
+Example:
 ```
-example_command 1
-example_command "2"
+my_command 1
+my_other_command "2"
 // Both of these are accepted, comments like this are ignored
 ```
 
-If you want to run multiple commands simultaneously, you can do so in the following format:
+Each command will be benchmarked separately.
+
+
+If you want to run multiple commands at the same time, you can do so in the following format:
 ```
-Name to display | example_command 1 | example_command 2 | example_command 3  ...
+Name to display | a_command 1 | b_command "value" | c_command 3  ...
 ```
 
-Working examples can be found in the `Benchmark Examples` folder.
+More examples can be found in the `Benchmark Examples` folder.
 
-### Process
+### Technical Info
 
-Every time you start a benchmark, the program will perform the following steps:
+Each time you start a benchmark, the program will perform the following steps:
 
 1. Any existing `cfg/config.cfg` and `sourcebench.csv` files are backed up.
 2. If needed, a baseline benchmark is created. During this phase:
@@ -68,14 +70,13 @@ Every time you start a benchmark, the program will perform the following steps:
   ```
   [DirectX Level] -default -timedemo_comment "Baseline" [Custom Launch Options] +timedemoquit [Demo Name] 
   ```
-  * If the `Custom Config` option is selected, the `default` parameter is removed and `+timedemo_runcount [1/2]` is added.
-  * The command list is copied to `tf/custom/tfbench/cfg/autoexec.cfg`.
+  * If the `Custom Config` option is selected, the `default` parameter is not included and the FPS config is copied to `tf/custom/tfbench/cfg/autoexec.cfg`.
   * TF2 generates a clean `config.cfg` using the command `host_writeconfig`.
   * The game exits.
 3. The main benchmark session starts.
-  * For every command in the `Benchmark` list, an `autoexec.cfg` will be created with the command and the FPS config (if used).
-  * Conflicts between the command and the FPS config will be automatically resolved.
-  * If the `Run Twice` box is checked, the `timedemo_runcount` will be set to `2`, and the first `timedemo` result will discarded to ensure    consistency. Is is recommended that you use this option.
+  * For every command in the `Benchmark` list, an `autoexec.cfg` will be generated with the command combined with the FPS config (if used).
+  * If the FPS config contains the same command as the one being benchmarked, it is overridden.
+  * If the `Run Twice` box is checked, the `timedemo_runcount` launch parameter will be set to `2`, and the first `timedemo` result will discarded to ensure consistency. Is is highly recommended that you use this option.
   * The game is started with the following launch options:
   ```
   -timedemo_comment [Command Name] [Custom Launch Options] +timedemo_runcount [1/2] +timedemoquit [Demo Name] 
@@ -84,11 +85,9 @@ Every time you start a benchmark, the program will perform the following steps:
 4. Results are parsed from the `sourcebench.csv` file, and displayed in the results tab.
 5. Once finished, backed up files are restored, and temporary files are removed.
 
-### Pitfalls
+### Getting Accurate Results
 
-When benchmarking, it is important to note that there are a number of factors that can impact results.
-
-* Ensure that you close out all applications that could interfere with the benchmark. These include internet browsers, VoIP applications, etc.
-* Under normal conditions benchmarking can result in variations of ±2-3 fps between identical runs.
-* Keeping `-dxlevel` in the launch options can negatively affect performance, and cause crashes. Remember to remove it once you've set your DirectX level to the desired value. Do **not** manually set the directx level when using TFBench, instead use the DirectX version selector.
+* Ensure that you close out all applications that could interfere with the benchmark. This include internet browsers, VoIP applications, etc.
+* Under normal conditions, results can vary between ±2-3 fps between identical runs.
+* Keeping `-dxlevel` in the launch options can negatively affect performance, and cause crashes. Remember to remove it once you've set your DirectX level to the desired value. Do **not** manually set the directx level when using TF2Bench, instead use the DirectX version selector.
 * The benchmark cannot run twice in once session when using the `-default` launch parameter ([#5](/../../issues/5)), thus baseline results when using the `Default` option may be inaccurate.
