@@ -13,21 +13,21 @@ To begin, you need:
 
 ### Usage
 
-1. Remove any configs that could interfere with the benchmark (usually autoexec.cfg)
-2. Set your TF2 path to your `Team Fortress 2` directory (Usually steamapps/common/Team Fortress 2).
-3. **(Optional)** Set your DirectX level.
+1. Remove or disable any configs that could interfere with the benchmark (autoexec.cfg)
+2. Set the TF2 path to your `Team Fortress 2` directory (steamapps/common/Team Fortress 2).
+3. Set the DirectX level, or leave it unchanged.
 4. Load an existing FPS config or use the default TF2 configuration.
 5. Load or add commands to benchmark. The file format for loading benchmarks is described below.
 6. **(Optional)** In the `Benchmark List` and `FPS Config` tabs, uncheck values you don't wish to use.
 7. Specify the demo to benchmark.
 8. Click start.
-9. View the results in the `Results` tab.
+9. After the benchmark completes, view the results in the `Results` tab.
 
 ### Keys
 
-`Shift + F10` will stop a benchmark while it is running. TF2 will not immediately close, instead it will just finish the current command and stop. You should hear a sound after pressing it.
+`Shift + F10` will stop a benchmark while one is running. TF2 will not immediately close, instead it will just finish the current command and stop. You should hear a sound after pressing it.
 
-`Alt + S` will start and stop the benchmark. The TF2 Bench window must be in focus, unlike the command above.
+`Alt + S` will start and stop the benchmark while in the GUI.
 
 `Alt + B` will run a baseline benchmark.
 
@@ -83,11 +83,11 @@ Each time you start a benchmark, the program will perform the following steps:
   ```
   * The game exits, and starts up again to benchmark the next command.
 4. Results are parsed from the `sourcebench.csv` file, and displayed in the results tab.
-5. Once finished, backed up files are restored, and temporary files are removed.
+5. The backed up `config.cfg` and `sourcebench.csv` files are restored, and the temporary `autoexec.cfg` is removed.
 
-### Getting Accurate Results
+### Ensuring Accurate Results
 
-* Ensure that you close out all applications that could interfere with the benchmark. This include internet browsers, VoIP applications, etc.
+* Close out all applications that could interfere with the benchmark. This include internet browsers, VoIP applications, etc.
 * Under normal conditions, results can vary between ±2-3 fps between identical runs.
-* Keeping `-dxlevel` in the launch options can negatively affect performance, and cause crashes. Remember to remove it once you've set your DirectX level to the desired value. Do **not** manually set the directx level when using TF2Bench, instead use the DirectX version selector.
-* The benchmark cannot run twice in once session when using the `-default` launch parameter ([#5](/../../issues/5)), thus baseline results when using the `Default` option may be inaccurate.
+* Keeping `-dxlevel` in the launch options can negatively affect performance, and cause crashes. Remember to remove it once you've set your DirectX level to the desired value. Do **not** manually set the dxlevel level lauch option when using TF2Bench, instead use the selector above.
+* The benchmark cannot run twice in once session when using the `-default` launch parameter ([#5](/../../issues/5)), thus baseline results when using this option may be inaccurate.
