@@ -25,7 +25,7 @@ To begin, you need:
 
 ### Keys
 
-`Shift + F10` will stop a benchmark while one is running. TF2 will not immediately close, instead it will just finish the current command and stop. You should hear a sound after pressing it.
+`Shift + F10` will stop a benchmark while one is running. TF2 will not immediately close, it will finish the current command and then stop. You should hear a sound confirmation after pressing it.
 
 `Alt + S` will start and stop the benchmark while in the GUI.
 
@@ -63,7 +63,7 @@ More examples can be found in the `Benchmark Examples` folder.
 Each time you start a benchmark, the program will perform the following steps:
 
 1. Any existing `cfg/config.cfg` and `sourcebench.csv` files are backed up.
-2. If needed, a baseline benchmark is created. During this phase:
+2. If needed, a baseline benchmark is performed. During this phase:
   * The game is started.
   * The DirectX level is set.
   * If the `Default` option is selected, the game is started with the following parameters:
@@ -87,7 +87,7 @@ Each time you start a benchmark, the program will perform the following steps:
 
 ### Ensuring Accurate Results
 
-* Close out all applications that could interfere with the benchmark. This include internet browsers, VoIP applications, etc.
+* Close out all applications that could interfere with the benchmark. This includes internet browsers, VoIP applications, etc.
 * Under normal conditions, results can vary between ±2-3 fps between identical runs.
-* Keeping `-dxlevel` in the launch options can negatively affect performance, and cause crashes. Remember to remove it once you've set your DirectX level to the desired value. Do **not** manually set the dxlevel level lauch option when using TF2Bench, instead use the selector above.
+* Keeping `-dxlevel` in the launch options can negatively affect performance, and cause crashes. Remember to remove it once you've set your DirectX level to the desired value. Do **not** manually set the dxlevel level lauch option when using TF2Bench, instead use the DirectX selector.
 * The benchmark cannot run twice in once session when using the `-default` launch parameter ([#5](/../../issues/5)), thus baseline results when using this option may be inaccurate.
