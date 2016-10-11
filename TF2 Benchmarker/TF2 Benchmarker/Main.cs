@@ -1041,13 +1041,15 @@ namespace TF2_Benchmarker
             var confs = new DirectoryInfo(cfgPath).GetFiles("autoexec.cfg", System.IO.SearchOption.AllDirectories);
 
             if (customConfs.Length > 0 || confs.Length > 0)
+            {
                 Log("WARNING: An existing autoexec.cfg was found.");
 
-            MessageBox.Show("An existing autoexec.cfg was found.\n" +
-                "Please remove or rename it to ensure accurate benchmark results.",
-                "Warning",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Exclamation);
+                MessageBox.Show("An existing autoexec.cfg was found.\n" +
+                    "Please remove or rename it to ensure accurate benchmark results.",
+                    "Warning",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Exclamation);
+            }
         }
 
         #endregion
