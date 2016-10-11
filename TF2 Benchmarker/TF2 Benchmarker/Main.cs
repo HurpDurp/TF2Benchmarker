@@ -179,6 +179,8 @@ namespace TF2_Benchmarker
                     TFPath = TFFolderDialog.SelectedPath;
                     lbl_tf2path.Text = TFFolderDialog.SelectedPath;
 
+                    WarnExistingAutoexec(TFPath);
+
                     Log("TF2 path set.");
                 }
                 else
@@ -1030,6 +1032,24 @@ namespace TF2_Benchmarker
             return false;
         }
 
+        private void WarnExistingAutoexec(string path)
+        {
+            // Scan for existing autoexec.cfg files and warn if any are found.
+            var customPath = path + @"\tf\custom";
+            var cfgPath = path + @"\tf\cfg";
+            var customConfs = new DirectoryInfo(customPath).GetFiles("autoexec.cfg", System.IO.SearchOption.AllDirectories);
+            var confs = new DirectoryInfo(cfgPath).GetFiles("autoexec.cfg", System.IO.SearchOption.AllDirectories);
+
+            if (customConfs.Length > 0 || confs.Length > 0)
+                Log("WARNING: An existing autoexec.cfg was found.");
+
+            MessageBox.Show("An existing autoexec.cfg was found.\n" +
+                "Please remove or rename it to ensure accurate benchmark results.",
+                "Warning",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Exclamation);
+        }
+
         #endregion
 
         #region Configuration File Handling
@@ -1053,6 +1073,8 @@ namespace TF2_Benchmarker
             {
                 TFPath = path;
                 lbl_tf2path.Text = path;
+
+                WarnExistingAutoexec(path);
             }
 
             txt_launchoptions.Text = ConfigFile.IniReadValue("General", "LaunchOptions");
